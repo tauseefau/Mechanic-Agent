@@ -174,5 +174,4 @@ same backend is now served from the web host instead of blocking Phases 5-6.
 
 ## [Unreleased]
 - Phase 6 Testing
-- Phase 6 Testing
 - Phase 7 Replicability audit
