@@ -1,6 +1,108 @@
 # Test plan and results
 
-Status: **Phase 1 verified; Phases 3-6 tests not yet run.**
+Status: **Phases 1–6 verified.** Phases 1–5 against the live sheet, calendar, deployed
+endpoint and Vapi assistant; Phase 6 adds the owner-edit proofs and three unscripted
+conversations driven through the live endpoint (23/23), plus 44/44 in the Node harness and
+44/44 against the live URL (one quota 429, re-run green).
+
+## Phase 6 — the two things Phases 1–5 never proved
+
+Everything before this ran the *backend*, or inspected the *assistant's configuration*.
+Nobody had yet shown (a) that an owner's spreadsheet edit changes what the agent says, or
+(b) that the written prompt plus the nine real tools actually completes a call.
+
+### A. Owner edits, no code change — `tests/phase6-proofs.js`
+
+Three edits of the kind the owner makes, each verified through the same HTTPS endpoint
+Vapi calls, then reverted. Catalogue tabs are cached for 10 s in the running service, so
+each assertion polls until the edit is visible — that window is part of the behaviour.
+
+| Proof | Edit | Verified response | Observed |
+|---|---|---|---|
+| A | append `ADD900 Headlight globe replacement`, $60, 15 min | `list_services` returns it; `get_price_quote` Minor + add-on = $240–$320, 105 min | visible after 10.2 s; removed after 10.4 s |
+| B | `Minor Service` 180–260 → 195–275 | `get_price_quote` and `list_services` both return $195–$275 | 3.3 s |
+| C | Monday open 08:00 → 09:00 | `check_availability` Monday first slot becomes 09:00 | 2.0 s |
+
+**8/8 assertions passed.** Nothing was left behind: the proof row was deleted and both
+cells were restored, each confirmed by re-querying the API.
+
+### B. Three unscripted conversations — `tests/phase6-conversations.js`
+
+The harness runs the deployed assistant's exact prompt (placeholders resolved from the
+live Config tab) and its exact nine tool definitions through `openai/gpt-4o-mini` — the
+model the assistant uses — with function calling. The caller is a second LLM with a fixed
+persona and fixed facts, so the conversation is unscripted but no data is invented. Every
+tool call goes to `https://diyyourdata.com/workshop-api/` and writes to the real Sheet and
+Calendar.
+
+| Scenario | Result | Evidence |
+|---|---|---|
+| 1. New customer books a minor service | 8/8 | BK00001 Confirmed, event `Minor Service - Nadia Okafor - RVB442`, quote $180–$260, 3 slots offered |
+| 2. Returning customer reschedules | 7/7 | same BK00002 moved 2 Nov 08:00 → 3 Nov 08:30, same event id, no duplicate row |
+| 3. Price enquiry then cancel | 7/7 | Major quote $480–$750 from `get_price_quote`, BK00001 → Cancelled, event deleted |
+
+**23/23 assertions** on a clean run (data reset first). Transcripts are committed in
+`tests/scenarios/`; machine-readable runs in `tests/phase6-runs/`.
+
+Harness: **44/44** (`node tests/api-tests.js`). Live against
+`https://diyyourdata.com/workshop-api/`: `--slice 1:22` came back **22/22**, `--slice 23:44`
+came back **21/22** with a single Google `429` on `cancel_booking with an unknown
+reference`, which passed on its own 45 s later (**1/1**) — i.e. 44/44 functionally, with the
+Sheets quota of 60 reads/minute/user still the only recurring failure mode. The suite now
+reads `APPS_SCRIPT_WEBAPP_URL`/`APPS_SCRIPT_SHARED_TOKEN` from `.env`, so a live run needs
+no manual exports.
+
+### Bugs Phase 6 found — all fixed and re-verified
+
+1. **The prompt had no current date.** Asked for "next week", the model computed
+   **2023**-10-30, `check_availability` correctly refused a date in the past, and the call
+   ended as "no slots, we'll call you". Every call would have failed this way.
+2. **The prompt had no caller number**, though it told the agent to look the caller up
+   first — so `lookup_customer` was called with a number the model made up. Returning
+   customers would never be recognised.
+3. **`create_booking` was used to "move" an existing booking.** The agent greeted Sam by
+   name, heard "change that booking", and created a second one: two confirmed bookings,
+   two bay-hours held, two references read out. Prompt rule added *and* the backend now
+   refuses a duplicate with `duplicate_booking` + the existing reference (D-025).
+4. **Prices were read out of `list_services`**, whose range ignores add-ons. It happened
+   to be correct for a bare major service and would have been wrong with add-ons. The tool
+   description now marks those ranges as orientation only (D-027).
+5. **`log_call_summary` was never called.** The tool existed, the prompt never told the
+   agent to use it, so `Call_Log` had tool traffic but no summary — the owner's only
+   "what happened on this call" line. Now a hard rule at the end of the prompt.
+6. **The shared token was written into every `Call_Log` row.** `request_json` stored the
+   request body verbatim, token included, in a spreadsheet the owner shares with staff.
+   `logCall_` now strips it, and a harness test fails if it ever comes back (D-026).
+
+### What Phase 6 still does not prove
+
+- **The audio path.** No Vapi phone number exists (creating one needs a card on file), so
+  Vapi's transcription → LLM → ElevenLabs round trip, barge-in and real latency are
+  untested. The configuration is asserted from the live assistant export, and
+  `POST /call/web` yields a browser room for a spoken test on demand.
+- **One model.** Behaviour is `gpt-4o-mini`-specific — four of the six bugs above are
+  instruction-following failures. A model swap needs a rerun of these three scenarios.
+- **Fake data.** Test customers and bookings are removed afterwards with
+  `scripts/reset-data.js --apply`.
+
+### Reproduce
+
+```bash
+node scripts/reset-data.js --apply
+node tests/api-tests.js                     # 44/44 harness
+node tests/phase6-proofs.js                 # 8/8 owner-edit proofs (edits reverted)
+node tests/phase6-conversations.js          # 23/23 three live conversations
+node tests/api-tests.js --live --slice 1:22
+sleep 70
+node tests/api-tests.js --live --slice 23:44
+```
+
+## Known behaviour on the final run
+
+The new-customer call asked for a contact number although the caller number was already in
+the prompt ("ask … if the one they are calling from is not theirs"). Redundant but
+harmless; left as-is because tightening it cost more prompt complexity than the question
+costs a caller.
 
 Sheet build verification (Phase 1, run against the live spreadsheet):
 
@@ -193,4 +295,5 @@ workshop's own Google account (see `apps-script/DEPLOY.md`). `node tests/api-tes
 
 ## Results
 
-_To be filled in Phase 6._
+Phase 6 results are at the top of this document. This section is the original plan and is
+kept so the tests that were written before any of it ran stay readable.

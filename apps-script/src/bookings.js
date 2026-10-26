@@ -114,6 +114,37 @@ function createBooking_(params) {
     return { success: false, error: 'unknown_service', message: 'I could not find that service on our list, sorry.' };
   }
 
+  /*
+   * Safety net against a second booking for a car that already has one ahead of it.
+   * Phase 6 caught the model doing exactly this: it greeted the caller by name, heard
+   * "change that booking", and still called create_booking — two confirmed bookings, two
+   * bay-hours held, two references read to the caller. The prompt now forbids it; this
+   * makes the mistake impossible instead of merely unlikely.
+   */
+  var existingCustomer = findCustomerByPhone_(phone);
+  if (existingCustomer) {
+    var wantedRego = String(params.rego || '').trim().toUpperCase().replace(/\s+/g, '');
+    var sameVehicle = readTab_('Vehicles').some(function (v) {
+      return String(v.customer_id).trim() === String(existingCustomer.customer_id).trim() &&
+        String(v.rego || '').trim().toUpperCase().replace(/\s+/g, '') === wantedRego;
+    });
+    if (sameVehicle) {
+      var ahead = upcomingBookings_(existingCustomer.customer_id).filter(function (b) {
+        return String(b.service_id) === String(service.service_id);
+      });
+      if (ahead.length) {
+        return {
+          success: false,
+          error: 'duplicate_booking',
+          existing_booking_id: ahead[0].booking_id,
+          existing_start_datetime: ahead[0].start_datetime,
+          message: 'That car already has ' + ahead[0].label + ' booked, reference ' +
+            ahead[0].booking_id + '. Use reschedule_booking to move that booking instead of making a second one.'
+        };
+      }
+    }
+  }
+
   var resolved = computeDuration_(service, params.addon_ids);
   var rawStart = parseWhen_(params.start_datetime);
   if (!rawStart) {

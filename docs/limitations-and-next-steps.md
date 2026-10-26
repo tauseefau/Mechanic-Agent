@@ -2,9 +2,10 @@
 
 ## Known limitations
 
-1. **US phone number.** Vapi's free US number is not local for Australian customers;
-   some callers won't answer or will treat it as spam. Importing an AU number needs a
-   Twilio/Telnyx number pointed at Vapi by SIP.
+1. **No phone number attached.** Vapi refuses to create a number without a card on file,
+   and the account's three numbers belong to the live plumbing assistant. The assistant is
+   configured and tested through a browser web-call room; an Australian local number still
+   needs a Twilio/Telnyx trunk pointed at Vapi by SIP.
 2. **Apps Script execution limits.** 6 minutes per execution and daily quota caps.
    Fine for per-call tool requests; not suitable for batch jobs.
 3. **No payment or deposit.** Bookings are free to make, so no-shows cost a bay.
@@ -20,6 +21,18 @@
    grid rather than packing the day.
 10. **Owner edits are live and unvalidated** beyond sheet data validation — a typo in
     `Working_Hours` can produce a strange day.
+
+11. **The audio path is unproven.** No Vapi phone number is attached (creating one needs a
+    card on file), so the transcription → model → voice round trip, barge-in and real
+    latency have never run. The conversation behaviour is verified by
+    `tests/phase6-conversations.js`; the audio is not.
+12. **Prompt-following is model-specific.** Four of the six defects Phase 6 found were the
+    model ignoring an instruction it had been given. The backend now has a guard against
+    the worst one (duplicate bookings), but a model change needs the three scenarios
+    re-run before go-live.
+13. **Catalogue edits take up to 10 s to appear** in a running service (per-tab read cache).
+    Fine for an owner changing a price at 8 pm; worth knowing if someone edits during a
+    call.
 
 ## Recommended next steps
 

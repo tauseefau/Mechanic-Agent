@@ -1,0 +1,206 @@
+{
+  "id": 1,
+  "title": "New customer books a minor service",
+  "started_at": "2026-10-26T22:30:00.981Z",
+  "model": "openai/gpt-4o-mini",
+  "transcript": [
+    {
+      "speaker": "Charlie",
+      "text": "Thanks for calling Riverbend Auto Service, this is Charlie. How can I help today?"
+    },
+    {
+      "speaker": "Nadia",
+      "text": "Hi Charlie, I’d like to book a minor service for my 2016 Toyota Corolla."
+    },
+    {
+      "speaker": "Charlie",
+      "text": "No worries, I can help with that. Can I have your full name, please?"
+    },
+    {
+      "speaker": "Nadia",
+      "text": "Sure, it's Nadia Okafor."
+    },
+    {
+      "speaker": "Charlie",
+      "text": "Thanks, Nadia. What's the registration number for your Corolla?"
+    },
+    {
+      "speaker": "Nadia",
+      "text": "It's RVB442."
+    },
+    {
+      "speaker": "Charlie",
+      "text": "Great, and just to confirm, what sort of car is it? I have a 2016 Toyota Corolla."
+    },
+    {
+      "speaker": "Nadia",
+      "text": "Yes, it's a 2016 Toyota Corolla."
+    },
+    {
+      "speaker": "Charlie",
+      "text": "Thanks for that. Can I have a contact number, just in case I need to reach you?"
+    },
+    {
+      "speaker": "Nadia",
+      "text": "My mobile number is +61478901234."
+    },
+    {
+      "speaker": "Charlie",
+      "text": "Thanks, Nadia. Is there anything else we should look at while the car is in for the minor service?"
+    },
+    {
+      "speaker": "Nadia",
+      "text": "No, I don’t need anything extra. Just the minor service, please."
+    },
+    {
+      "speaker": "Charlie",
+      "text": "For the minor service, it's normally between one hundred and eighty and two hundred and sixty dollars, and we'd need the car for about an hour and a half. \n\nI have a few slots available: Wednesday the twenty-eighth at eight, at eight thirty, or at nine. Which one suits you?"
+    },
+    {
+      "speaker": "Nadia",
+      "text": "I can do Wednesday the twenty-eighth at eight."
+    },
+    {
+      "speaker": "Charlie",
+      "text": "Perfect! Just to confirm, that's a minor service on the Corolla, rego R V B four four two, for Nadia Okafor, on Wednesday the twenty-eighth at eight. Is that all right?"
+    },
+    {
+      "speaker": "Nadia",
+      "text": "Yes, that's correct. Thank you!"
+    },
+    {
+      "speaker": "Charlie",
+      "text": "You're booked in for a minor service on Wednesday the twenty-eighth at eight, reference B K zero zero one. The estimate is one hundred and eighty to two hundred and sixty dollars, and the final price is confirmed after we inspect it. \n\nThanks for calling Riverbend Auto Service, see you then!"
+    },
+    {
+      "speaker": "Nadia",
+      "text": "Thank you, Charlie. See you then!"
+    },
+    {
+      "speaker": "Charlie",
+      "text": "Thanks for calling Riverbend Auto Service, see you then!"
+    }
+  ],
+  "toolLog": [
+    {
+      "tool": "lookup_customer",
+      "args": {
+        "phone": "+61478901234"
+      },
+      "ms": 818,
+      "success": true,
+      "message": "I do not have that number on file yet, so this is a new customer."
+    },
+    {
+      "tool": "get_price_quote",
+      "args": {
+        "service_id": "Minor Service"
+      },
+      "ms": 1361,
+      "success": true,
+      "message": "For a minor service, it is normally $180 to $260. We would need it for about an hour and a half. That is an estimate, the final price is confirmed after we inspect it."
+    },
+    {
+      "tool": "check_availability",
+      "args": {
+        "service_id": "SVC002",
+        "preferred_date": "2026-10-28"
+      },
+      "ms": 1936,
+      "success": true,
+      "message": "I have Wednesday 28 October at 8 am, Wednesday 28 October at 8:30 am, or Wednesday 28 October at 9 am. Which one suits?"
+    },
+    {
+      "tool": "create_booking",
+      "args": {
+        "name": "Nadia Okafor",
+        "phone": "+61478901234",
+        "rego": "RVB442",
+        "make": "Toyota",
+        "model": "Corolla",
+        "year": 2016,
+        "service_id": "SVC002",
+        "start_datetime": "2026-10-28T08:00:00+11:00"
+      },
+      "ms": 5329,
+      "success": true,
+      "message": "You are booked in for a minor service on Wednesday 28 October at 8 am, booking reference BK00001. The estimate is $180 to $260, and the final price is confirmed after we inspect it."
+    },
+    {
+      "tool": "log_call_summary",
+      "args": {
+        "summary": "Nadia Okafor called to book a minor service for her 2016 Toyota Corolla, rego RVB442. She is booked for Wednesday the 28th at 8 am, reference BK00001.",
+        "outcome": "booked",
+        "caller_number": "+61478901234"
+      },
+      "ms": 767,
+      "success": true,
+      "message": "Logged."
+    }
+  ],
+  "assertions": [
+    {
+      "name": "one confirmed booking written for the new caller",
+      "ok": true,
+      "detail": "1 confirmed row(s), booking BK00001"
+    },
+    {
+      "name": "calendar event created for that booking",
+      "ok": true,
+      "detail": "1 event(s) mentioning RVB442 at 2026-10-28T08:00:00+11:00"
+    },
+    {
+      "name": "booking linked to its calendar event id",
+      "ok": true,
+      "detail": "calendar_event_id drb2eklo0d42…"
+    },
+    {
+      "name": "booking is inside opening hours, not on a closure",
+      "ok": true,
+      "detail": "starts 2026-10-28T08:00:00+11:00"
+    },
+    {
+      "name": "agent used lookup, quote, availability and create",
+      "ok": true,
+      "detail": "lookup_customer, get_price_quote, check_availability, create_booking, log_call_summary"
+    },
+    {
+      "name": "every tool call for this call landed in Call_Log",
+      "ok": true,
+      "detail": "5 row(s) for 5 tool call(s): lookup_customer, get_price_quote, check_availability, create_booking, log_call_summary"
+    },
+    {
+      "name": "agent logged a call summary before hanging up",
+      "ok": true,
+      "detail": "summary row present"
+    },
+    {
+      "name": "Call_Log rows do not contain the shared token",
+      "ok": true,
+      "detail": "5 row(s) checked"
+    }
+  ],
+  "evidence": {
+    "customer": {
+      "id": "CUS0003",
+      "name": "Nadia Okafor",
+      "phone": "+61478901234"
+    },
+    "booking": [
+      "BK00001",
+      "2026-10-27T09:30:33+11:00",
+      "CUS0003",
+      "VEH0003",
+      "SVC002",
+      "",
+      "2026-10-28T08:00:00+11:00",
+      "2026-10-28T09:30:00+11:00",
+      180,
+      260,
+      "Confirmed",
+      "drb2eklo0d42d6pqrjrfuci8kk",
+      "phone"
+    ]
+  },
+  "unresolved": []
+}

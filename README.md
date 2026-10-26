@@ -42,6 +42,10 @@ never invents prices, hours or availability.
 | [server/README.md](server/README.md) | Running the same backend as a self-hosted service |
 | [deploy/deploy.sh](deploy/deploy.sh) | One-command deploy to `/workshop-api/` |
 | [tests/api-tests.js](tests/api-tests.js) | All-action test suite (harness + `--live`) |
+| [tests/phase6-proofs.js](tests/phase6-proofs.js) | Owner-edit proofs: add-on, price, hours — live, then reverted |
+| [tests/phase6-conversations.js](tests/phase6-conversations.js) | Three unscripted calls through the deployed prompt + live tools |
+| [tests/scenarios/](tests/scenarios) | The three call scenarios, with real transcripts |
+| [vapi/export-assistant.js](vapi/export-assistant.js) | Re-export the live assistant, sanitised |
 | [tests/harness/gas.js](tests/harness/gas.js) | Apps Script shim so tests run under Node |
 | [vapi/system-prompt.md](vapi/system-prompt.md) | The assistant system prompt |
 | [vapi/tools/](vapi/tools) | Nine function-tool definitions (one file each) |
@@ -85,10 +89,15 @@ and **Products_Addons** tabs. Code reads them at call time.
 | Phase | Scope | State |
 |---|---|---|
 | 0 | Repository skeleton + docs | done |
-| 1 | Google Sheet | pending |
-| 2 | Google Calendar + availability | pending |
-| 3 | Apps Script API | pending |
-| 4 | ElevenLabs voice | pending |
-| 5 | Vapi assistant | pending |
-| 6 | Testing | pending |
+| 1 | Google Sheet | done (10 tabs, live) |
+| 2 | Google Calendar + availability | done (`Workshop Bookings`, Australia/Melbourne) |
+| 3 | Apps Script API + self-hosted runtime | done — same modules under Apps Script and systemd |
+| 4 | ElevenLabs voice | done (Charlie, `eleven_flash_v2_5`) |
+| 5 | Vapi assistant | done (`c936ac26-…c1d3`), **no phone number** — Vapi needs a card |
+| 6 | Testing | done — 44/44 harness, 44/44 live, 8/8 owner-edit proofs, 23/23 conversations |
 | 7 | Replicability audit | pending |
+
+Known gap: there is no phone number attached, so the audio path (transcription → model →
+ElevenLabs) is configured but has not been exercised end to end. Everything else is
+verified against the live sheet, calendar and endpoint — see
+[docs/testing.md](docs/testing.md).

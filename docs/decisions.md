@@ -2,6 +2,54 @@
 
 Newest first. Every default chosen without asking the user is recorded here.
 
+## D-029 The assistant export is a script, not a hand copy
+Phase 5 wrote `vapi/assistant.export.json` by hand once. It then silently stopped matching
+the live assistant the moment the prompt changed in Phase 6. `vapi/export-assistant.js`
+fetches the live assistant, keeps only behaviour-bearing fields (ids, org and timestamps
+differ per account), scrubs the URL/token back to placeholders and **refuses to write** if
+a secret survives. The export is now evidence, not a snapshot someone remembered to update.
+
+## D-028 Phase 6 drives the real prompt and real tools, not a mock
+A mocked Vapi cannot catch a prompt bug, and a mocked backend cannot catch a sheet bug. The
+conversation harness loads `vapi/system-prompt.md` (placeholders resolved from the live
+Config tab) and `vapi/tools/*.json`, calls the assistant's own model
+(`openai/gpt-4o-mini`) with function calling, and executes every tool call against
+`https://diyyourdata.com/workshop-api/`. The caller is a second LLM with a fixed persona —
+unscripted conversation, fixed facts. Cost: it is one model on one day, so it is a
+regression test, not a proof of correctness for every phrasing.
+
+## D-027 `list_services` is not a price source
+Phase 6 caught the agent quoting a major service straight out of `list_services`. That
+range ignores agreed add-ons and job length, so the same shortcut misquotes any job with
+extras. Rather than hide the numbers (the owner and the agent both use them for
+orientation), the tool description now says they are orientation only and
+`get_price_quote` is the only source for a spoken figure. Removing the fields was
+rejected: `list_services` is also the catalogue view the model uses to explain services.
+
+## D-026 `Call_Log` never stores the shared token
+`request_json` was the request body verbatim, so every row contained the token — in a
+spreadsheet the owner shares with staff and, eventually, with whoever buys the workshop.
+`logCall_` strips the `token` key before writing. A harness test fails if it comes back.
+Response bodies are untouched: they never carried the token.
+
+## D-025 `create_booking` refuses a duplicate booking for the same car
+Phase 6's reschedule call produced two confirmed bookings: the model greeted the caller by
+name, heard "change that booking", and still called `create_booking`. A prompt rule alone
+is not a guarantee with a small fast model, so the backend now returns
+`duplicate_booking` (with the existing reference and time) when the same customer + rego
+already has a confirmed booking ahead of it for the same service. The agent is told to use
+`reschedule_booking`. Deliberately narrow: a second *different* service, or a different
+car, still books normally.
+
+## D-024 The two facts the model cannot know come from Vapi Liquid
+The prompt told the agent to look the caller up and to work out "next week" itself, but
+nothing gave it the caller's number or today's date. On the first Phase 6 run it invented
+a number for `lookup_customer` and computed **2023** dates, so every availability check
+failed. The prompt now carries `{{customer.number}}` and Vapi's
+`{{ "now" | date: "%A, %B %d, %Y" }}`. `create-assistant.js` leaves Liquid alone (its
+substitution only matches `{{UPPER_CASE}}`), and the conversation harness renders the same
+two tokens, so the tested text is the deployed text.
+
 ## D-012 Prices include GST by default
 `gst_percent = 10`, `prices_include_gst = TRUE`. Australian retail expectation for a
 consumer-facing service quote; the agent quotes the number on the sticker. Flip the

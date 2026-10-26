@@ -1,0 +1,158 @@
+{
+  "id": 3,
+  "title": "Price enquiry then cancels",
+  "started_at": "2026-10-26T22:31:13.865Z",
+  "seed": {
+    "booking_id": "BK00003",
+    "start_datetime": "2026-11-02T08:00:00+11:00"
+  },
+  "model": "openai/gpt-4o-mini",
+  "transcript": [
+    {
+      "speaker": "Charlie",
+      "text": "Thanks for calling Riverbend Auto Service, this is Charlie. How can I help today?"
+    },
+    {
+      "speaker": "Priya",
+      "text": "Hi Charlie, I’d like to know the price range for a major service on my Hyundai i30."
+    },
+    {
+      "speaker": "Charlie",
+      "text": "Hi Priya, for a major service on your Hyundai i30, it's normally between four hundred and eighty and seven hundred and fifty dollars, and we'd need the car for about four hours. That's an estimate — the final price is confirmed after we've had a look. \n\nIs there anything else you need?"
+    },
+    {
+      "speaker": "Priya",
+      "text": "Yes, I actually need to cancel my existing booking."
+    },
+    {
+      "speaker": "Charlie",
+      "text": "I can help with that. Your current booking is for a major service on Monday the second at eight am. Just to confirm, are you sure you want to cancel that?"
+    },
+    {
+      "speaker": "Priya",
+      "text": "Yes, I want to cancel that booking."
+    },
+    {
+      "speaker": "Charlie",
+      "text": "Your booking for the major service on Monday the second at eight am has been successfully cancelled. \n\nThanks for letting us know. Is there anything else I can help you with today?"
+    },
+    {
+      "speaker": "Priya",
+      "text": "No, that's all. Thank you!"
+    },
+    {
+      "speaker": "Charlie",
+      "text": "Thanks for calling Riverbend Auto Service, see you then!"
+    }
+  ],
+  "toolLog": [
+    {
+      "tool": "lookup_customer",
+      "args": {
+        "phone": "+61412345987"
+      },
+      "ms": 1710,
+      "success": true,
+      "message": "Welcome back, Priya. Is this about the Hyundai i30? You already have Monday 2 November at 8 am booked."
+    },
+    {
+      "tool": "list_services",
+      "args": {},
+      "ms": 1710,
+      "success": true,
+      "message": "We do general checkup, minor service, major service. Add-ons we can do at the same time are battery replacement, wiper blades, tyre rotation, brake pad replacement, air filter, cabin filter."
+    },
+    {
+      "tool": "get_price_quote",
+      "args": {
+        "service_id": "SVC003"
+      },
+      "ms": 615,
+      "success": true,
+      "message": "For a major service, it is normally $480 to $750. We would need it for about 4 hours. That is an estimate, the final price is confirmed after we inspect it."
+    },
+    {
+      "tool": "cancel_booking",
+      "args": {
+        "phone": "+61412345987",
+        "date": "2026-11-02"
+      },
+      "ms": 3224,
+      "success": true,
+      "message": "That is cancelled. Thanks for letting us know."
+    },
+    {
+      "tool": "log_call_summary",
+      "args": {
+        "summary": "Priya Raman called to cancel her booking for a major service on her Hyundai i30.",
+        "outcome": "cancelled",
+        "caller_number": "+61412345987"
+      },
+      "ms": 626,
+      "success": true,
+      "message": "Logged."
+    }
+  ],
+  "assertions": [
+    {
+      "name": "booking marked Cancelled, not deleted",
+      "ok": true,
+      "detail": "1 cancelled row(s); seed was BK00003"
+    },
+    {
+      "name": "calendar event removed",
+      "ok": true,
+      "detail": "0 event(s) left mentioning PRX221"
+    },
+    {
+      "name": "agent quoted from the sheet then cancelled",
+      "ok": true,
+      "detail": "lookup_customer, list_services, get_price_quote, cancel_booking, log_call_summary"
+    },
+    {
+      "name": "major service quote came from the sheet",
+      "ok": true,
+      "detail": "$480 to $750"
+    },
+    {
+      "name": "every tool call for this call landed in Call_Log",
+      "ok": true,
+      "detail": "5 row(s) for 5 tool call(s): lookup_customer, list_services, get_price_quote, cancel_booking, log_call_summary"
+    },
+    {
+      "name": "agent logged a call summary before hanging up",
+      "ok": true,
+      "detail": "summary row present"
+    },
+    {
+      "name": "Call_Log rows do not contain the shared token",
+      "ok": true,
+      "detail": "5 row(s) checked"
+    }
+  ],
+  "evidence": {
+    "seed": {
+      "booking_id": "BK00003",
+      "start_datetime": "2026-11-02T08:00:00+11:00"
+    },
+    "cancelled": [
+      [
+        "BK00003",
+        "2026-10-27T09:31:18+11:00",
+        "CUS0005",
+        "VEH0005",
+        "SVC002",
+        "",
+        "2026-11-02T08:00:00+11:00",
+        "2026-11-02T09:30:00+11:00",
+        180,
+        260,
+        "Cancelled",
+        "krl3asp2djupb6o9h4hjdok1kc",
+        "phone",
+        "Phase 6 precondition"
+      ]
+    ]
+  },
+  "unresolved": []
+}

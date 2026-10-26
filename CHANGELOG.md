@@ -172,6 +172,49 @@ same backend is now served from the web host instead of blocking Phases 5-6.
 - No additional phone number: Vapi requires a card on file. Verified `POST /call/web`
   instead, which returns a browser call room for spoken testing.
 
+## [0.8.0] - 2026-10-26 — Phase 6: testing
+
+### Added
+- `tests/phase6-proofs.js` — the three owner-edit proofs run against the live sheet and
+  the live endpoint, then reverted: new add-on row, changed service price, changed Monday
+  opening time. 8/8 assertions; each edit visible through the API without a deploy.
+- `tests/phase6-conversations.js` — three unscripted calls driven through the deployed
+  prompt and the nine real tools at `https://diyyourdata.com/workshop-api/`, with an LLM
+  caller on a fixed persona. 23/23 assertions; every tool call, sheet write and calendar
+  write is verified against ground truth afterwards.
+- `tests/phase6-runs/*.json` — machine-readable transcript + assertion record per scenario.
+- `vapi/export-assistant.js` — regenerate the sanitised live-assistant export; refuses to
+  write if a secret survives. The export is now reproducible instead of hand-copied.
+- `tests/api-tests.js` — a test that fails if the shared token is ever written to
+  `Call_Log`.
+- `tests/scenarios/*.md` — real transcripts and outcomes replace the placeholders.
+
+### Fixed
+- **The prompt had no current date and no caller number.** The agent computed 2023 dates
+  (so every availability check failed) and called `lookup_customer` with an invented
+  number. The prompt now carries Vapi Liquid `{{ "now" | date: ... }}` and
+  `{{customer.number}}`.
+- **A reschedule created a second booking.** `create_booking` now returns
+  `duplicate_booking` with the existing reference when the same customer + rego already
+  has a confirmed booking for that service, and the prompt forbids using it to move one.
+- **Prices were quoted from `list_services`**, whose range ignores add-ons. Its tool
+  description now marks those ranges as orientation only; `get_price_quote` is the only
+  source for a spoken figure.
+- **`log_call_summary` was never called** — the tool existed but the prompt never asked
+  for it, so `Call_Log` had tool traffic and no summary. Now a hard rule at the end of the
+  prompt.
+- **The shared token was stored in every `Call_Log` row.** `logCall_` strips the `token`
+  key before writing.
+- The live Vapi assistant was rebuilt from the repo (`c936ac26-…c1d3`), so the deployed
+  prompt and the committed prompt are the same 7,494 characters.
+
+### Verified
+- Harness `node tests/api-tests.js` **44/44**; live endpoint **44/44** in two quota-safe
+  slices; owner-edit proofs **8/8**; conversations **23/23**.
+
+### Not verified
+- The audio path: Vapi refuses a new phone number without a card on file, so ASR/TTS,
+  barge-in and real latency remain untested (see `docs/testing.md`).
+
 ## [Unreleased]
-- Phase 6 Testing
 - Phase 7 Replicability audit

@@ -30,8 +30,19 @@ const FILTER = filterIdx > -1 ? args[filterIdx + 1] : null;
 const sliceIdx = args.indexOf('--slice');
 const SLICE = sliceIdx > -1 ? String(args[sliceIdx + 1]).split(':').map(Number) : null;
 let testIndex = 0;
-const URL = process.env.APPS_SCRIPT_WEBAPP_URL || '';
-const TOKEN = process.env.APPS_SCRIPT_SHARED_TOKEN || '';
+/**
+ * --live needs the two values Vapi itself uses. Read them from the repo .env when they are
+ * not exported, so `node tests/api-tests.js --live` works the same way every other script
+ * in this repo does instead of failing with "needs APPS_SCRIPT_WEBAPP_URL".
+ */
+const ENV_TEXT = (() => { try { return require('fs').readFileSync(require('path').join(__dirname, '..', '.env'), 'utf8'); } catch (e) { return ''; } })();
+function envValue(name) {
+  if (process.env[name]) return process.env[name];
+  const m = ENV_TEXT.match(new RegExp(`^${name}=(.*)$`, 'm'));
+  return m ? m[1].replace(/^"|"$/g, '').trim() : '';
+}
+const URL = envValue('APPS_SCRIPT_WEBAPP_URL');
+const TOKEN = envValue('APPS_SCRIPT_SHARED_TOKEN');
 
 const results = [];
 let ctx = null;
@@ -506,6 +517,13 @@ const SAMPLE_PHONE = '+61400000001';
     ['ping', 'get_workshop_info', 'list_services', 'get_price_quote', 'lookup_customer',
       'check_availability', 'create_booking', 'reschedule_booking', 'cancel_booking', 'log_call_summary']
       .forEach((t) => assert(tools.has(t), `no Call_Log entry for ${t}`));
+  });
+
+  await test('Call_Log never stores the shared token', async () => {
+    if (LIVE) return;
+    const rows = ctx.spreadsheet.getSheetByName('Call_Log').data;
+    const leaked = rows.filter((r) => String(r[4] || '').includes(ctx.token));
+    assert(leaked.length === 0, `${leaked.length} Call_Log row(s) contain the shared token`);
   });
 
   await test('unauthorised attempts are logged as unauthorised', async () => {

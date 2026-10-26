@@ -1,0 +1,158 @@
+{
+  "id": 2,
+  "title": "Returning customer reschedules",
+  "started_at": "2026-10-26T22:30:43.315Z",
+  "seed": {
+    "booking_id": "BK00002",
+    "start_datetime": "2026-11-02T08:00:00+11:00"
+  },
+  "model": "openai/gpt-4o-mini",
+  "transcript": [
+    {
+      "speaker": "Charlie",
+      "text": "Thanks for calling Riverbend Auto Service, this is Charlie. How can I help today?"
+    },
+    {
+      "speaker": "Sam",
+      "text": "Hi Charlie, this is Sam. I need to move my booking for my Mazda BT-50 to another morning later in the week or early next week."
+    },
+    {
+      "speaker": "Charlie",
+      "text": "Hi Sam, is this about the Mazda BT-50? You already have a booking for Monday, the second of November at eight. What day or time were you thinking of moving it to?"
+    },
+    {
+      "speaker": "Sam",
+      "text": "Yes, that's correct. I was hoping to move it to either later in the week or early next week."
+    },
+    {
+      "speaker": "Charlie",
+      "text": "I have a few slots available for you on Tuesday, the third of November: at eight, at eight thirty, or at nine. Which one suits you best?"
+    },
+    {
+      "speaker": "Sam",
+      "text": "Could I move it to eight thirty on Tuesday, the third of November?"
+    },
+    {
+      "speaker": "Charlie",
+      "text": "You're all set! Your minor service for the Mazda BT-50 is now on Tuesday, the third of November at eight thirty. \n\nThanks for calling Riverbend Auto Service, see you then!"
+    },
+    {
+      "speaker": "Sam",
+      "text": "Thank you, Charlie! See you then."
+    },
+    {
+      "speaker": "Charlie",
+      "text": "Thanks for calling Riverbend Auto Service, see you then!"
+    }
+  ],
+  "toolLog": [
+    {
+      "tool": "lookup_customer",
+      "args": {
+        "phone": "+61439876543"
+      },
+      "ms": 1481,
+      "success": true,
+      "message": "Welcome back, Sam. Is this about the Mazda BT-50? You already have Monday 2 November at 8 am booked."
+    },
+    {
+      "tool": "check_availability",
+      "args": {
+        "service_id": "SVC002",
+        "preferred_date": "2026-11-03",
+        "time_preference": "morning"
+      },
+      "ms": 2647,
+      "success": true,
+      "message": "I have Tuesday 3 November at 8 am, Tuesday 3 November at 8:30 am, or Tuesday 3 November at 9 am. Which one suits?"
+    },
+    {
+      "tool": "reschedule_booking",
+      "args": {
+        "booking_id": "BK00002",
+        "phone": "+61439876543",
+        "date": "2026-11-02",
+        "new_start_datetime": "2026-11-03T08:30:00+11:00"
+      },
+      "ms": 3353,
+      "success": true,
+      "message": "Done. Your minor service is now on Tuesday 3 November at 8:30 am."
+    },
+    {
+      "tool": "log_call_summary",
+      "args": {
+        "summary": "Sam Whitfield called to reschedule their booking for a minor service on their Mazda BT-50.",
+        "outcome": "rescheduled",
+        "caller_number": "+61439876543"
+      },
+      "ms": 821,
+      "success": true,
+      "message": "Logged."
+    }
+  ],
+  "assertions": [
+    {
+      "name": "still exactly one booking (no duplicate row)",
+      "ok": true,
+      "detail": "1 confirmed row(s); seed was BK00002"
+    },
+    {
+      "name": "booking moved to a different start time",
+      "ok": true,
+      "detail": "2026-11-02T08:00:00+11:00 -> 2026-11-03T08:30:00+11:00"
+    },
+    {
+      "name": "calendar event moved, same event id",
+      "ok": true,
+      "detail": "j5puu621q8u1… at 2026-11-03T08:30:00+11:00"
+    },
+    {
+      "name": "old slot no longer occupied by this booking",
+      "ok": true,
+      "detail": "old event replaced, not duplicated"
+    },
+    {
+      "name": "agent looked the caller up and used reschedule_booking",
+      "ok": true,
+      "detail": "lookup_customer, check_availability, reschedule_booking, log_call_summary"
+    },
+    {
+      "name": "every tool call for this call landed in Call_Log",
+      "ok": true,
+      "detail": "4 row(s) for 4 tool call(s): lookup_customer, check_availability, reschedule_booking, log_call_summary"
+    },
+    {
+      "name": "agent logged a call summary before hanging up",
+      "ok": true,
+      "detail": "summary row present"
+    },
+    {
+      "name": "Call_Log rows do not contain the shared token",
+      "ok": true,
+      "detail": "4 row(s) checked"
+    }
+  ],
+  "evidence": {
+    "seed": {
+      "booking_id": "BK00002",
+      "start_datetime": "2026-11-02T08:00:00+11:00"
+    },
+    "booking": [
+      "BK00002",
+      "2026-10-27T09:30:48+11:00",
+      "CUS0004",
+      "VEH0004",
+      "SVC002",
+      "",
+      "2026-11-03T08:30:00+11:00",
+      "2026-11-03T10:00:00+11:00",
+      180,
+      260,
+      "Confirmed",
+      "j5puu621q8u15tjoe00f6noopo",
+      "phone",
+      "Phase 6 precondition"
+    ]
+  },
+  "unresolved": []
+}

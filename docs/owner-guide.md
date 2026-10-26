@@ -1,7 +1,9 @@
 # Owner guide — running the workshop with the AI receptionist
 
 Everything you need is in one spreadsheet: **Workshop Voice Agent**.
-You never need to touch code. Changes take effect on the next phone call.
+You never need to touch code. Changes take effect on the next phone call — the running
+service keeps prices, hours and products for about ten seconds, so if a call comes in the
+second you press enter, it may still answer with the old figure once.
 
 ## 1. Change your opening hours
 

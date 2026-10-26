@@ -11,6 +11,21 @@ function truncate_(value, limit) {
   return s.length > limit ? s.substring(0, limit) + '…[truncated]' : s;
 }
 
+/**
+ * The shared token arrives in the body (Apps Script cannot see headers) and would
+ * otherwise be copied verbatim into every Call_Log row — i.e. written into a spreadsheet
+ * the owner, and anyone they share it with, can read. Strip it before logging.
+ */
+function withoutSecret_(request) {
+  if (!request || typeof request !== 'object' || Array.isArray(request)) return request;
+  var copy = {};
+  Object.keys(request).forEach(function (k) {
+    if (String(k).toLowerCase() === 'token') return;
+    copy[k] = request[k];
+  });
+  return copy;
+}
+
 function logCall_(tool, caller, request, response, outcome) {
   try {
     appendObject_('Call_Log', {
@@ -18,7 +33,7 @@ function logCall_(tool, caller, request, response, outcome) {
       call_id: (request && (request.call_id || request.callId)) || '',
       caller_number: normalisePhone_(caller || (request && request.phone) || '') || String(caller || ''),
       tool_called: String(tool || ''),
-      request_json: truncate_(request, LOG_LIMIT),
+      request_json: truncate_(withoutSecret_(request), LOG_LIMIT),
       response_json: truncate_(response, LOG_LIMIT),
       outcome: String(outcome || '')
     });
