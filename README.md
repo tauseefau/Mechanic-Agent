@@ -44,6 +44,9 @@ never invents prices, hours or availability.
 | [tests/api-tests.js](tests/api-tests.js) | All-action test suite (harness + `--live`) |
 | [tests/harness/gas.js](tests/harness/gas.js) | Apps Script shim so tests run under Node |
 | [vapi/system-prompt.md](vapi/system-prompt.md) | The assistant system prompt |
+| [vapi/tools/](vapi/tools) | Nine function-tool definitions (one file each) |
+| [vapi/create-assistant.js](vapi/create-assistant.js) | Rebuild the assistant from this repo |
+| [vapi/assistant.export.json](vapi/assistant.export.json) | Live assistant, exported and sanitised |
 | [vapi/assistant.json](vapi/assistant.json) | Sanitised exported assistant config |
 | [elevenlabs/voice-settings.json](elevenlabs/voice-settings.json) | Voice choice, tuning, shortlist |
 | [elevenlabs/samples/](elevenlabs/samples) | Five voices reading the same script |

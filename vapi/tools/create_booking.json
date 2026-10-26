@@ -1,0 +1,77 @@
+{
+  "type": "function",
+  "async": false,
+  "function": {
+    "name": "create_booking",
+    "description": "Create the booking after the caller has confirmed every detail. Re-validates the slot, creates or updates the customer and vehicle, writes the booking and adds the calendar event. Returns a booking_id and a speech-ready confirmation.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The customer's full name."
+        },
+        "phone": {
+          "type": "string",
+          "description": "Contact number in E.164, eg +61412345678."
+        },
+        "rego": {
+          "type": "string",
+          "description": "Registration plate, no spaces, eg ABC123."
+        },
+        "make": {
+          "type": "string",
+          "description": "Vehicle make, eg Toyota."
+        },
+        "model": {
+          "type": "string",
+          "description": "Vehicle model, eg Corolla."
+        },
+        "year": {
+          "type": "number",
+          "description": "Vehicle year, eg 2018."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "service_id or service name being booked."
+        },
+        "addon_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "item_id values the caller agreed to."
+        },
+        "start_datetime": {
+          "type": "string",
+          "description": "The chosen slot as returned by check_availability, eg 2026-11-03T08:00:00+11:00, or yyyy-mm-dd HH:mm."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address, only if the caller offers one."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Anything the mechanic should know."
+        }
+      },
+      "required": [
+        "name",
+        "phone",
+        "rego",
+        "service_id",
+        "start_datetime"
+      ]
+    }
+  },
+  "server": {
+    "url": "{{API_BASE}}?token={{API_TOKEN}}",
+    "timeoutSeconds": 20
+  },
+  "messages": [
+    {
+      "type": "request-start",
+      "content": "Booking that in now."
+    }
+  ]
+}

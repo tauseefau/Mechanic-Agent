@@ -58,6 +58,22 @@ Caller ID arrives as `+61412345678`. Normalisation strips spaces/dashes and assu
 Phone calls need sub-second first audio. A Flash/Turbo model plus stability ~0.45 and
 speed ~1.0 is the chosen starting point; recorded in `elevenlabs/voice-settings.json`.
 
+## D-023 Web calls, not a second phone number
+Creating an additional Vapi number requires a card on file; the account has three numbers
+and all are attached to the existing plumbing assistant, which must keep working. So the
+new assistant is verified with a Vapi **web call** (`POST /call/web` with the *public* key,
+which returns a `webCallUrl` browser room), and an Australian local number stays on the
+roadmap. Reassigning one of the plumbing numbers was rejected: it would silently break a
+live business asset.
+
+## D-022 Vapi's tool envelope is handled by an adapter, not by rewriting the tools
+Vapi posts `{message:{type:'tool-calls', toolCallList:[...]}}` and expects
+`{results:[{toolCallId, result}]}`; our contract is `{action, ...}` -> `{success, message,
+...}`. Rather than duplicate nine action definitions in Vapi-specific shape, `handleVapi_`
+in `api.js` maps the envelope onto the same `ACTIONS` table, and the end-of-call webhook
+(`end-of-call-report`) is logged to `Call_Log` by the same function. One implementation
+serves curl tests, Vapi tool calls and the webhook — and the harness tests all three.
+
 ## D-020 The API also runs as a self-hosted Node service on diyourdata.com
 Apps Script deployment requires an interactive browser consent in the owner's Google
 account, which cannot be scripted and therefore blocked the live end-to-end test. Rather

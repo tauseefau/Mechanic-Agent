@@ -1,0 +1,36 @@
+{
+  "type": "function",
+  "async": false,
+  "function": {
+    "name": "cancel_booking",
+    "description": "Cancel a confirmed booking and remove its calendar event. Identify by booking_id, or by phone plus the booking date.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "booking_id": {
+          "type": "string",
+          "description": "Booking reference, eg BK00012."
+        },
+        "phone": {
+          "type": "string",
+          "description": "Caller's number, if the booking_id is unknown."
+        },
+        "date": {
+          "type": "string",
+          "description": "Booking date as yyyy-mm-dd, used with phone."
+        }
+      },
+      "required": []
+    }
+  },
+  "server": {
+    "url": "{{API_BASE}}?token={{API_TOKEN}}",
+    "timeoutSeconds": 20
+  },
+  "messages": [
+    {
+      "type": "request-start",
+      "content": "Cancelling that now."
+    }
+  ]
+}

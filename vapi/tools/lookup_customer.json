@@ -1,0 +1,24 @@
+{
+  "type": "function",
+  "async": false,
+  "function": {
+    "name": "lookup_customer",
+    "description": "Look up the caller by phone number. Call this at the start of every call with the caller's number. Returns whether they are known, their name, their vehicles and any upcoming bookings.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "phone": {
+          "type": "string",
+          "description": "The caller's number, preferably in E.164 like +61412345678. A local 04 number is fine."
+        }
+      },
+      "required": [
+        "phone"
+      ]
+    }
+  },
+  "server": {
+    "url": "{{API_BASE}}?token={{API_TOKEN}}",
+    "timeoutSeconds": 20
+  }
+}

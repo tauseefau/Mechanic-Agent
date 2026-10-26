@@ -1,0 +1,37 @@
+{
+  "type": "function",
+  "async": false,
+  "function": {
+    "name": "get_price_quote",
+    "description": "Get an estimate for a service, optionally with add-ons. Returns the low and high price, whether GST is included, the total duration and a speech-ready sentence.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "The service_id from list_services, eg SVC002. A service name also works."
+        },
+        "addon_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "item_id values from list_services, eg [\"ADD004\"]. Omit or empty for none."
+        }
+      },
+      "required": [
+        "service_id"
+      ]
+    }
+  },
+  "server": {
+    "url": "{{API_BASE}}?token={{API_TOKEN}}",
+    "timeoutSeconds": 20
+  },
+  "messages": [
+    {
+      "type": "request-start",
+      "content": "One moment, let me get that price for you."
+    }
+  ]
+}

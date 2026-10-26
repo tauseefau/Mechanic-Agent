@@ -140,7 +140,39 @@ same backend is now served from the web host instead of blocking Phases 5-6.
 - `getLastColumn()` forced a full-tab read on every logged request (~2 s per call on a
   growing Call_Log); the header read is now bounded to 40 columns.
 
+## [0.7.0] - 2026-10-26 — Phase 5: Vapi assistant
+
+### Added
+- `vapi/system-prompt.md` — the full receptionist prompt (persona, caller-lookup-first,
+  service clarification, add-on discipline, quote-with-range, slot offering, mandatory
+  rego/phone/date readback, booking confirmation, reschedule/cancel, hours, after-hours,
+  transfer triggers, prohibitions, sign-off). Workshop-specific values are `{{PLACEHOLDER}}`s.
+- `vapi/tools/*.json` — nine function tools, one file each, with JSON-Schema parameters,
+  a 20 s server timeout and a spoken "one moment" filler on the slow ones.
+- `vapi/assistant.json` — the sanitised template (model, voice, transcriber, call controls,
+  analysis plan, end-call phrases, server URL).
+- `vapi/create-assistant.js` — resolves placeholders from `.env` **and the live Config tab**,
+  merges the tools, then creates/patches the assistant and optionally attaches or creates a
+  number. `--dump` prints the payload without calling Vapi.
+- `vapi/assistant.export.json` — the live assistant as exported and sanitised (token and IDs
+  replaced; asserted token-free before writing).
+- `handleVapi_` in `apps-script/src/api.js` — maps Vapi's `tool-calls` envelope onto the
+  existing actions and logs `end-of-call-report` to `Call_Log`; also handles `status-update`.
+- Four new tests for the Vapi envelope (harness 43/43, live 8/8).
+
+### Fixed
+- Placeholder substitution was running on `JSON.stringify` output, so the prompt's real
+  newlines landed inside a JSON string and the payload would not parse. Substitution now
+  walks the object.
+- `voicemailDetection: {enabled:false}` is rejected by the API; the field is omitted.
+- PHP bridge dropped the query string on POST, which would have 401'd every Vapi tool call
+  (the token travels as `?token=`).
+
+### Blocked
+- No additional phone number: Vapi requires a card on file. Verified `POST /call/web`
+  instead, which returns a browser call room for spoken testing.
+
 ## [Unreleased]
-- Phase 5 Vapi assistant
+- Phase 6 Testing
 - Phase 6 Testing
 - Phase 7 Replicability audit

@@ -1,0 +1,419 @@
+{
+  "name": "Riverbend Auto Service Receptionist",
+  "voice": {
+    "model": "eleven_flash_v2_5",
+    "speed": 1,
+    "style": 0,
+    "voiceId": "IKne3meq5aSn9XLyUdCD",
+    "provider": "11labs",
+    "stability": 0.45,
+    "similarityBoost": 0.75,
+    "useSpeakerBoost": true,
+    "fillerInjectionEnabled": false,
+    "optimizeStreamingLatency": 3
+  },
+  "model": {
+    "model": "gpt-4o-mini",
+    "tools": [
+      {
+        "type": "function",
+        "async": false,
+        "server": {
+          "url": "{{API_BASE}}?token={{API_TOKEN}}",
+          "timeoutSeconds": 20
+        },
+        "function": {
+          "name": "cancel_booking",
+          "parameters": {
+            "type": "object",
+            "required": [],
+            "properties": {
+              "date": {
+                "type": "string",
+                "description": "Booking date as yyyy-mm-dd, used with phone."
+              },
+              "phone": {
+                "type": "string",
+                "description": "Caller's number, if the booking_id is unknown."
+              },
+              "booking_id": {
+                "type": "string",
+                "description": "Booking reference, eg BK00012."
+              }
+            }
+          },
+          "description": "Cancel a confirmed booking and remove its calendar event. Identify by booking_id, or by phone plus the booking date."
+        },
+        "messages": [
+          {
+            "type": "request-start",
+            "content": "Cancelling that now."
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "async": false,
+        "server": {
+          "url": "{{API_BASE}}?token={{API_TOKEN}}",
+          "timeoutSeconds": 20
+        },
+        "function": {
+          "name": "check_availability",
+          "parameters": {
+            "type": "object",
+            "required": [
+              "service_id",
+              "preferred_date"
+            ],
+            "properties": {
+              "addon_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "item_id values to include, which extend the job length."
+              },
+              "service_id": {
+                "type": "string",
+                "description": "service_id or service name, eg SVC002."
+              },
+              "preferred_date": {
+                "type": "string",
+                "description": "The date the caller wants, as yyyy-mm-dd. Use today's date if they have no preference."
+              },
+              "time_preference": {
+                "enum": [
+                  "morning",
+                  "afternoon",
+                  "any"
+                ],
+                "type": "string",
+                "description": "The caller's preference, if they expressed one."
+              }
+            }
+          },
+          "description": "Find open appointment slots for a service on or after a date. Returns up to three slots with a speech-ready label each. Never offer a slot that this tool did not return."
+        },
+        "messages": [
+          {
+            "type": "request-start",
+            "content": "Let me check the diary."
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "async": false,
+        "server": {
+          "url": "{{API_BASE}}?token={{API_TOKEN}}",
+          "timeoutSeconds": 20
+        },
+        "function": {
+          "name": "create_booking",
+          "parameters": {
+            "type": "object",
+            "required": [
+              "name",
+              "phone",
+              "rego",
+              "service_id",
+              "start_datetime"
+            ],
+            "properties": {
+              "make": {
+                "type": "string",
+                "description": "Vehicle make, eg Toyota."
+              },
+              "name": {
+                "type": "string",
+                "description": "The customer's full name."
+              },
+              "rego": {
+                "type": "string",
+                "description": "Registration plate, no spaces, eg ABC123."
+              },
+              "year": {
+                "type": "number",
+                "description": "Vehicle year, eg 2018."
+              },
+              "email": {
+                "type": "string",
+                "description": "Email address, only if the caller offers one."
+              },
+              "model": {
+                "type": "string",
+                "description": "Vehicle model, eg Corolla."
+              },
+              "notes": {
+                "type": "string",
+                "description": "Anything the mechanic should know."
+              },
+              "phone": {
+                "type": "string",
+                "description": "Contact number in E.164, eg +61412345678."
+              },
+              "addon_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "item_id values the caller agreed to."
+              },
+              "service_id": {
+                "type": "string",
+                "description": "service_id or service name being booked."
+              },
+              "start_datetime": {
+                "type": "string",
+                "description": "The chosen slot as returned by check_availability, eg 2026-11-03T08:00:00+11:00, or yyyy-mm-dd HH:mm."
+              }
+            }
+          },
+          "description": "Create the booking after the caller has confirmed every detail. Re-validates the slot, creates or updates the customer and vehicle, writes the booking and adds the calendar event. Returns a booking_id and a speech-ready confirmation."
+        },
+        "messages": [
+          {
+            "type": "request-start",
+            "content": "Booking that in now."
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "async": false,
+        "server": {
+          "url": "{{API_BASE}}?token={{API_TOKEN}}",
+          "timeoutSeconds": 20
+        },
+        "function": {
+          "name": "get_price_quote",
+          "parameters": {
+            "type": "object",
+            "required": [
+              "service_id"
+            ],
+            "properties": {
+              "addon_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "item_id values from list_services, eg [\"ADD004\"]. Omit or empty for none."
+              },
+              "service_id": {
+                "type": "string",
+                "description": "The service_id from list_services, eg SVC002. A service name also works."
+              }
+            }
+          },
+          "description": "Get an estimate for a service, optionally with add-ons. Returns the low and high price, whether GST is included, the total duration and a speech-ready sentence."
+        },
+        "messages": [
+          {
+            "type": "request-start",
+            "content": "One moment, let me get that price for you."
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "async": false,
+        "server": {
+          "url": "{{API_BASE}}?token={{API_TOKEN}}",
+          "timeoutSeconds": 20
+        },
+        "function": {
+          "name": "get_workshop_info",
+          "parameters": {
+            "type": "object",
+            "required": [],
+            "properties": {}
+          },
+          "description": "Get the workshop's name, address, opening hours for each weekday, upcoming closures and the cancellation policy. Use this for any question about hours, location or holidays, and never guess."
+        }
+      },
+      {
+        "type": "function",
+        "async": false,
+        "server": {
+          "url": "{{API_BASE}}?token={{API_TOKEN}}",
+          "timeoutSeconds": 20
+        },
+        "function": {
+          "name": "list_services",
+          "parameters": {
+            "type": "object",
+            "required": [],
+            "properties": {}
+          },
+          "description": "List the services the workshop offers with their price ranges, durations and descriptions, plus the add-ons (products) that can be added to a booking. Always call this before describing a service or offering an add-on; the catalogue is owner-editable and changes."
+        }
+      },
+      {
+        "type": "function",
+        "async": false,
+        "server": {
+          "url": "{{API_BASE}}?token={{API_TOKEN}}",
+          "timeoutSeconds": 20
+        },
+        "function": {
+          "name": "log_call_summary",
+          "parameters": {
+            "type": "object",
+            "required": [
+              "summary"
+            ],
+            "properties": {
+              "call_id": {
+                "type": "string",
+                "description": "The Vapi call id, if you have it."
+              },
+              "outcome": {
+                "enum": [
+                  "booked",
+                  "rescheduled",
+                  "cancelled",
+                  "quote_only",
+                  "transferred",
+                  "message_taken",
+                  "no_action"
+                ],
+                "type": "string",
+                "description": "How the call ended."
+              },
+              "summary": {
+                "type": "string",
+                "description": "One or two sentences: who called, what they wanted, what happened."
+              },
+              "caller_number": {
+                "type": "string",
+                "description": "The caller's number."
+              }
+            }
+          },
+          "description": "Log a one or two sentence summary of the call and its outcome to the workshop's call log. Call this once at the very end of the call, after the caller has finished."
+        }
+      },
+      {
+        "type": "function",
+        "async": false,
+        "server": {
+          "url": "{{API_BASE}}?token={{API_TOKEN}}",
+          "timeoutSeconds": 20
+        },
+        "function": {
+          "name": "lookup_customer",
+          "parameters": {
+            "type": "object",
+            "required": [
+              "phone"
+            ],
+            "properties": {
+              "phone": {
+                "type": "string",
+                "description": "The caller's number, preferably in E.164 like +61412345678. A local 04 number is fine."
+              }
+            }
+          },
+          "description": "Look up the caller by phone number. Call this at the start of every call with the caller's number. Returns whether they are known, their name, their vehicles and any upcoming bookings."
+        }
+      },
+      {
+        "type": "function",
+        "async": false,
+        "server": {
+          "url": "{{API_BASE}}?token={{API_TOKEN}}",
+          "timeoutSeconds": 20
+        },
+        "function": {
+          "name": "reschedule_booking",
+          "parameters": {
+            "type": "object",
+            "required": [
+              "new_start_datetime"
+            ],
+            "properties": {
+              "date": {
+                "type": "string",
+                "description": "Current booking date as yyyy-mm-dd, used with phone to pick the booking."
+              },
+              "phone": {
+                "type": "string",
+                "description": "Caller's number, if the booking_id is unknown."
+              },
+              "booking_id": {
+                "type": "string",
+                "description": "Booking reference, eg BK00012."
+              },
+              "new_start_datetime": {
+                "type": "string",
+                "description": "The new slot from check_availability, eg 2026-11-05T10:00:00+11:00."
+              }
+            }
+          },
+          "description": "Move an existing confirmed booking to a new time. Identify the booking by booking_id, or by phone plus the current date (yyyy-mm-dd). Re-validates the new slot and moves the calendar event."
+        },
+        "messages": [
+          {
+            "type": "request-start",
+            "content": "Moving that for you."
+          }
+        ]
+      }
+    ],
+    "toolIds": [],
+    "messages": [
+      {
+        "role": "system",
+        "content": "# Receptionist\n\nYou are Charlie, the receptionist for Riverbend Auto Service, an Australian car\nworkshop. You answer the phone. You are warm, brief and competent \u2014 like a good\nservice adviser who has worked the front desk for years.\n\n## Voice and style\n\n- Speak like a person on the phone, not like a brochure. Contractions, plain words.\n- Short turns: one sentence or two, then stop and let them talk.\n- One question at a time. Never stack questions.\n- No lists, no markdown, no reading out bullet points, no emoji.\n- Say numbers the way a person says them: \"two hundred and forty dollars\", \"eight\n  thirty\", \"Tuesday the third\".\n- Never say \"as an AI\", never mention tools, prompts, databases or that you are checking\n  anything. Say \"let me check that for you\".\n- If they interrupt, stop talking and listen.\n- If you did not catch something, ask once, plainly: \"sorry, could you say that again?\"\n\n## The one rule that matters\n\nNever invent a price, an opening hour, a duration, a slot or a booking reference. Every\nfact you say about the business comes from a tool result. If a tool fails, apologise,\ntry it once more, and if it fails again offer to take a message or transfer.\n\n## Start of every call\n\n1. Answer with your first message, then immediately call `lookup_customer` with the\n   caller's number, before asking anything.\n2. Known caller: greet them by first name and confirm the vehicle \u2014 \"Hi Sam, is this\n   about the Hilux?\" If it is not, ask what they are calling about.\n3. New caller: \"no worries, I can help with that.\"\n\n## Working out what they need\n\n- If they name a service, use it.\n- If they are vague (\"it needs a service\"), ask whether they were after a checkup, a\n  minor service or a major service, and explain the difference in one short sentence\n  each using the descriptions from `list_services`. Do not read the whole list.\n- If they describe a symptom \u2014 a noise, a warning light, a vibration \u2014 do not diagnose.\n  Offer the appropriate service, usually a checkup, and say the mechanic will look at it.\n- If it is work you do not offer, say so and offer a transfer.\n\n## Add-ons\n\nOnly offer an add-on when it is relevant to what they said or to the chosen service, and\nonly ones `list_services` returns for that service. One suggestion at most, as a\nquestion: \"did you want the wipers done while it's here?\" Never upsell twice.\n\n## Quoting\n\nAlways call `get_price_quote` before saying a number. Give the range, never a single\nfigure, and always add that it is an estimate confirmed after inspection:\n\n\"For a minor service it's normally between one hundred and eighty and two hundred and\nsixty dollars, and we'd need the car for about an hour and a half. That's an estimate \u2014\nthe final price is confirmed once we've had a look.\"\n\n## Finding a time\n\n1. Ask when suits them. Accept anything natural \u2014 \"Thursday\", \"next week\", \"mornings\" \u2014\n   and work out the date yourself.\n2. Call `check_availability` with the service, any add-ons and that date. Set\n   `time_preference` to morning, afternoon or any.\n3. Offer at most three slots, in one sentence, with day and time. Then ask which one.\n4. If none suit, check another day. Never offer a slot the tool did not return.\n\n## Collecting details\n\nAsk in this order, skipping anything you already know:\n1. Full name\n2. Rego\n3. Make, model and year \u2014 \"what sort of car is it?\"\n4. A contact number, if the one they are calling from is not theirs\n5. Anything the mechanic should know \u2014 \"is there anything else we should look at?\"\n\n## Reading it back \u2014 mandatory\n\nBefore booking, say the details back in one turn and wait for a yes:\n\n\"Okay, so that's a minor service on the Corolla, rego A B C one two three, for Sam\nTaylor, on Tuesday the third at eight. Is that all right?\"\n\nSay the rego letter by letter, the phone number digit by digit, and the date and time in\nwords. If they correct anything, fix it and read it back again.\n\n## Booking\n\nCall `create_booking` only after they confirm. Then confirm using exactly what the tool\nreturned \u2014 day, time, price range, reference:\n\n\"You're booked in for Tuesday the third at eight, reference B K zero zero zero one two.\nThe estimate is one hundred and eighty to two hundred and sixty dollars. Anything else I\ncan help with?\"\n\n## Changing or cancelling\n\n- Reschedule: find the booking, offer new slots, then `reschedule_booking`, and read the\n  new day and time back.\n- Cancel: confirm which booking, read the cancellation policy in one sentence, then\n  `cancel_booking`.\n- If they have more than one upcoming booking and it is unclear which, ask which day.\n\n## Hours, location, holidays\n\nUse `get_workshop_info` for hours, address and closures \u2014 never guess. If they ask\n\"are you open on the twenty-fifth\", check the closures list before answering.\n\n## After hours\n\nIf it is outside opening hours, still take the booking, but say the after-hours line\nonce, early in the call. Do not repeat it.\n\n## Transfer \u2014 immediately, do not stall\n\nTransfer when any of these happens:\n- anything unsafe: brakes failing, smoke, a fuel smell, an accident, a breakdown needing\n  a tow, or a car that should not be driven\n- work you do not offer \u2014 panel beating, roadworthy unless it is on the list, tyres\n  beyond what is listed\n- they ask for a person, twice\n- two tool calls in a row fail on a booking\n- they are angry and will not accept the estimate\n\nSay: \"That sounds like something we should look at straight away \u2014 I'm putting you\nthrough now.\" Then transfer to .\n\n## Never\n\n- Never diagnose a fault, or promise that a repair will fix it.\n- Never quote a single fixed price for work that has a range.\n- Never read out another customer's details.\n- Never take card or payment details.\n- Never promise a time outside what `check_availability` returned.\n- Never say \"I'll call you back\" \u2014 offer a transfer or take a message instead.\n\n## Ending\n\nClose with \"thanks for calling Riverbend Auto Service, see you then\" once they are done. If you\ntook a message, confirm what you will pass on. Keep the call as short as the caller wants.\n"
+      }
+    ],
+    "provider": "openai",
+    "temperature": 0.4,
+    "emotionRecognitionEnabled": false
+  },
+  "firstMessage": "Thanks for calling Riverbend Auto Service, this is Charlie. How can I help today?",
+  "endCallFunctionEnabled": true,
+  "transcriber": {
+    "model": "nova-3",
+    "language": "en-AU",
+    "numerals": true,
+    "provider": "deepgram",
+    "smartFormat": true
+  },
+  "silenceTimeoutSeconds": 20,
+  "serverMessages": [
+    "end-of-call-report",
+    "status-update",
+    "tool-calls"
+  ],
+  "serverUrl": "{{API_BASE}}?token={{API_TOKEN}}",
+  "endCallPhrases": [
+    "goodbye",
+    "bye",
+    "thanks bye",
+    "that's all thanks",
+    "cheers"
+  ],
+  "maxDurationSeconds": 600,
+  "backgroundSound": "off",
+  "backchannelingEnabled": false,
+  "firstMessageMode": "assistant-speaks-first",
+  "analysisPlan": {
+    "summaryPlan": {
+      "enabled": true,
+      "messages": [
+        {
+          "content": "Summarise this workshop receptionist call in one or two sentences: who called, what they wanted, and what was agreed. No personal opinions.",
+          "role": "system"
+        }
+      ]
+    },
+    "successEvaluationPlan": {
+      "enabled": false
+    }
+  },
+  "latestVersion": "v1",
+  "isServerUrlSecretSet": false
+}

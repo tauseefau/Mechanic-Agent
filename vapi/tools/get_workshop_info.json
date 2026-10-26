@@ -1,0 +1,17 @@
+{
+  "type": "function",
+  "async": false,
+  "function": {
+    "name": "get_workshop_info",
+    "description": "Get the workshop's name, address, opening hours for each weekday, upcoming closures and the cancellation policy. Use this for any question about hours, location or holidays, and never guess.",
+    "parameters": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    }
+  },
+  "server": {
+    "url": "{{API_BASE}}?token={{API_TOKEN}}",
+    "timeoutSeconds": 20
+  }
+}

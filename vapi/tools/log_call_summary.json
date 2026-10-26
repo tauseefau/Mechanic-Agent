@@ -1,0 +1,45 @@
+{
+  "type": "function",
+  "async": false,
+  "function": {
+    "name": "log_call_summary",
+    "description": "Log a one or two sentence summary of the call and its outcome to the workshop's call log. Call this once at the very end of the call, after the caller has finished.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "call_id": {
+          "type": "string",
+          "description": "The Vapi call id, if you have it."
+        },
+        "summary": {
+          "type": "string",
+          "description": "One or two sentences: who called, what they wanted, what happened."
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "booked",
+            "rescheduled",
+            "cancelled",
+            "quote_only",
+            "transferred",
+            "message_taken",
+            "no_action"
+          ],
+          "description": "How the call ended."
+        },
+        "caller_number": {
+          "type": "string",
+          "description": "The caller's number."
+        }
+      },
+      "required": [
+        "summary"
+      ]
+    }
+  },
+  "server": {
+    "url": "{{API_BASE}}?token={{API_TOKEN}}",
+    "timeoutSeconds": 20
+  }
+}

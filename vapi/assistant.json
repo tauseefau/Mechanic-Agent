@@ -1,10 +1,71 @@
 {
-  "_status": "PLACEHOLDER — full sanitised export written in Phase 5",
+  "_comment": "Sanitised template. create-assistant.js resolves every {{PLACEHOLDER}} from .env plus the live Config tab, merges vapi/tools/*.json into model.tools, then POSTs to Vapi.",
   "name": "{{WORKSHOP_NAME}} Receptionist",
-  "firstMessage": "",
-  "model": {},
-  "voice": {},
-  "transcriber": {},
-  "tools": [],
-  "serverUrl": "{{APPS_SCRIPT_WEBAPP_URL}}"
+  "firstMessage": "Thanks for calling {{WORKSHOP_NAME}}, this is {{AGENT_NAME}}. How can I help today?",
+  "firstMessageMode": "assistant-speaks-first",
+  "model": {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "temperature": 0.4,
+    "emotionRecognitionEnabled": false,
+    "messages": [
+      {
+        "role": "system",
+        "content": "{{SYSTEM_PROMPT}}"
+      }
+    ],
+    "tools": [],
+    "toolIds": []
+  },
+  "voice": {
+    "provider": "11labs",
+    "voiceId": "IKne3meq5aSn9XLyUdCD",
+    "model": "eleven_flash_v2_5",
+    "stability": 0.45,
+    "similarityBoost": 0.75,
+    "style": 0.0,
+    "useSpeakerBoost": true,
+    "optimizeStreamingLatency": 3,
+    "speed": 1.0,
+    "fillerInjectionEnabled": false
+  },
+  "transcriber": {
+    "provider": "deepgram",
+    "model": "nova-3",
+    "language": "en-AU",
+    "smartFormat": true,
+    "numerals": true
+  },
+  "serverUrl": "{{API_BASE}}?token={{API_TOKEN}}",
+  "serverMessages": [
+    "end-of-call-report",
+    "status-update",
+    "tool-calls"
+  ],
+  "silenceTimeoutSeconds": 20,
+  "maxDurationSeconds": 600,
+  "backgroundSound": "off",
+  "backchannelingEnabled": false,
+  "endCallFunctionEnabled": true,
+  "endCallPhrases": [
+    "goodbye",
+    "bye",
+    "thanks bye",
+    "that's all thanks",
+    "cheers"
+  ],
+  "analysisPlan": {
+    "summaryPlan": {
+      "enabled": true,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Summarise this workshop receptionist call in one or two sentences: who called, what they wanted, and what was agreed. No personal opinions."
+        }
+      ]
+    },
+    "successEvaluationPlan": {
+      "enabled": false
+    }
+  }
 }

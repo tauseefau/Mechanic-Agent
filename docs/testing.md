@@ -28,6 +28,30 @@ Calendar verification (Phase 2, run against the live calendar):
 | `.env` `CALENDAR_ID` set | pass |
 | `calendar/calendar-config.json` matches live state | pass |
 
+## Phase 5 — Vapi assistant
+
+| Check | Result |
+|---|---|
+| Assistant created | `c936ac26-ccd6-4780-a2dd-0ea88d06c1d3` |
+| Name / first message | "Riverbend Auto Service Receptionist" / "Thanks for calling Riverbend Auto Service, this is Charlie. How can I help today?" |
+| Model | openai `gpt-4o-mini`, temperature 0.4 |
+| Voice | 11labs `IKne3meq5aSn9XLyUdCD`, `eleven_flash_v2_5`, stability 0.45, similarity 0.75, streaming-latency opt 3 |
+| Transcriber | deepgram `nova-3`, `en-AU`, smart format, numerals |
+| Tools attached | 9 of 9, server URL `https://diyyourdata.com/workshop-api/?token=...` |
+| System prompt | 6,032 chars resolved from `vapi/system-prompt.md`, **0 unresolved `{{PLACEHOLDER}}`** |
+| Workshop values | pulled live from Config (`Riverbend Auto Service`, agent `Charlie`, transfer number) — nothing hardcoded |
+| Call controls | silence timeout 20 s, max duration 600 s, 5 end-call phrases |
+| End-of-call webhook | `serverMessages: end-of-call-report, status-update, tool-calls` |
+| Sanitised export | `vapi/assistant.export.json` (token and IDs replaced; asserted token-free) |
+| Vapi-envelope adapter | 4 new tests, all pass in harness **43/43** and live **8/8** |
+| Phone number | **blocked** — see below |
+
+Phone number blocker: Vapi refuses `POST /phone-number` without a card on file
+("You must provide a credit card payment method to create additional phone numbers"). The
+account's three numbers are all attached to the existing plumbing assistant, so none can be
+taken without breaking it. Verified alternative: `POST /call/web` with the **public** key
+returns a browser room (`webCallUrl`) for a real spoken test, no number needed.
+
 ## Phase 3b — live endpoint on diyourdata.com
 
 Target: `https://diyyourdata.com/workshop-api/` (PHP bridge → Node service →

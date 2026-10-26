@@ -514,6 +514,67 @@ const SAMPLE_PHONE = '+61400000001';
     assert(rows.some((r) => r[6] === 'unauthorised'), 'no unauthorised log row');
   });
 
+  /* --- Vapi envelope adapter --- */
+  await test('Vapi tool-call envelope maps onto the same actions', async () => {
+    const r = await POST({
+      message: {
+        type: 'tool-calls',
+        toolCallList: [
+          { id: 'tc_price', function: { name: 'get_price_quote', arguments: '{"service_id":"SVC002","addon_ids":["ADD004"]}' } },
+          { id: 'tc_info', function: { name: 'get_workshop_info', arguments: '{}' } },
+        ],
+      },
+      token: LIVE ? TOKEN : undefined,
+    });
+    assert(Array.isArray(r.results) && r.results.length === 2, JSON.stringify(r).slice(0, 200));
+    const price = JSON.parse(r.results.find((x) => x.toolCallId === 'tc_price').result);
+    assert(price.success === true && price.price_low === 460, JSON.stringify(price).slice(0, 200));
+    const info = JSON.parse(r.results.find((x) => x.toolCallId === 'tc_info').result);
+    assert(info.success === true && info.workshop.workshop_name, JSON.stringify(info).slice(0, 150));
+  });
+
+  await test('Vapi tool call without a token is refused', async () => {
+    if (LIVE) {
+      const res = await fetch(URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: { type: 'tool-calls', toolCallList: [{ id: 'tc_x', function: { name: 'ping', arguments: '{}' } }] } }),
+        redirect: 'follow',
+      });
+      const r = JSON.parse(await res.text());
+      assert(/not authorised/i.test(r.results[0].result), JSON.stringify(r).slice(0, 200));
+      return;
+    }
+    const r = call(ctx, { message: { type: 'tool-calls', toolCallList: [{ id: 'tc_x', function: { name: 'ping', arguments: '{}' } }] } }, { token: null });
+    assert(/not authorised/i.test(r.results[0].result), JSON.stringify(r).slice(0, 200));
+  });
+
+  await test('Vapi end-of-call-report is written to Call_Log', async () => {
+    const before = LIVE ? null : ctx.spreadsheet.getSheetByName('Call_Log').data.length;
+    const r = await POST({
+      message: {
+        type: 'end-of-call-report',
+        endedReason: 'customer-ended-call',
+        call: { id: 'vapi_call_123', customer: { number: '+61411222333' } },
+        analysis: { summary: 'Caller asked about a minor service and booked Tuesday.' },
+        artifact: { transcript: 'Agent: thanks for calling...' },
+      },
+      token: LIVE ? TOKEN : undefined,
+    });
+    assert(r.success === true, JSON.stringify(r).slice(0, 200));
+    if (!LIVE) {
+      const rows = ctx.spreadsheet.getSheetByName('Call_Log').data;
+      assert(rows.length > before, 'no Call_Log row for the end-of-call report');
+      const row = rows.slice(before).find((x) => x[3] === 'end_of_call_report');
+      assert(row, 'end_of_call_report not logged');
+      assert(/minor service/i.test(`${row[4]} ${row[5]}`), 'summary text missing');
+    }
+  });
+
+  await test('Vapi status-update is acknowledged and ignored', async () => {
+    const r = await POST({ message: { type: 'status-update', status: 'in-progress' }, token: LIVE ? TOKEN : undefined });
+    assert(r.success === true && r.ignored === 'status-update', JSON.stringify(r).slice(0, 160));
+  });
+
   /* --- summary --- */
   const passed = results.filter((r) => r.ok).length;
   const failed = results.length - passed;

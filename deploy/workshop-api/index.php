@@ -38,14 +38,11 @@ if (isset($_GET['health'])) {
     $payload = $method === 'POST' ? file_get_contents('php://input') : null;
 }
 
-$url = BACKEND . $path;
-if ($method === 'GET' && !empty($_GET)) {
-    $params = $_GET;
-    unset($params['health']);
-    if ($params) {
-        $url .= '?' . http_build_query($params);
-    }
-}
+// The shared token travels in the query string (Vapi's tool server.url and serverUrl both
+// end in ?token=...), so the query has to survive the proxy on POST as well as GET.
+$params = $_GET;
+unset($params['health']);
+$url = BACKEND . $path . ($params ? '?' . http_build_query($params) : '');
 
 $ch = curl_init($url);
 curl_setopt_array($ch, [

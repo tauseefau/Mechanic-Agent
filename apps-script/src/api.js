@@ -117,8 +117,78 @@ function handle_(e) {
   }
 }
 
+/**
+ * Vapi calls this endpoint in two shapes that are not our {action:...} contract:
+ *   1. a tool call batch      {message:{type:'tool-calls', toolCallList:[{id, function:{name, arguments}}]}}
+ *   2. lifecycle events       {message:{type:'end-of-call-report'|'status-update', ...}}
+ * Both carry the token in the query string (server.url / serverUrl end in ?token=...).
+ * The adapter below maps them onto the same ACTIONS table, so there is one code path for
+ * a curl test, the Vapi assistant and the end-of-call webhook.
+ */
+function handleVapi_(body, e) {
+  var msg = body.message || {};
+  var auth = authorised_(e, body);
+
+  if (msg.type === 'tool-calls') {
+    var calls = msg.toolCallList || [];
+    var results = calls.map(function (call) {
+      var fn = call.function || {};
+      var name = String(fn.name || '');
+      var args = {};
+      try {
+        args = typeof fn.arguments === 'string' ? JSON.parse(fn.arguments) : (fn.arguments || {});
+      } catch (err) { args = {}; }
+
+      if (!auth.ok) {
+        logCall_(name || 'vapi_tool', args.phone || '', args, { error: auth.reason }, 'unauthorised');
+        return { toolCallId: call.id, result: 'That request was not authorised.' };
+      }
+
+      var handler = ACTIONS[name];
+      if (!handler) {
+        return { toolCallId: call.id, result: JSON.stringify({ success: false, error: 'unknown_action', message: 'I do not know how to do that.' }) };
+      }
+      try {
+        var res = handler(args);
+        if (res && res.message === undefined) res.message = 'Done.';
+        logCall_(name, args.phone || args.caller_number || '', args, res, res && res.success ? 'success' : (res && res.error) || 'error');
+        return { toolCallId: call.id, result: JSON.stringify(res) };
+      } catch (err) {
+        var failure = { success: false, error: 'exception', detail: String(err), message: 'Sorry, I had trouble with that just now. Could you try that once more?' };
+        logCall_(name, args.phone || '', args, failure, 'exception');
+        return { toolCallId: call.id, result: JSON.stringify(failure) };
+      }
+    });
+    return { results: results };
+  }
+
+  if (msg.type === 'end-of-call-report') {
+    if (!auth.ok) return { success: false, error: 'unauthorised' };
+    var call = msg.call || {};
+    var analysis = msg.analysis || {};
+    var summary = (analysis.summary || msg.summary || '').toString().trim();
+    var endedReason = msg.endedReason || call.endedReason || 'ended';
+    var callerNumber = (call.customer && call.customer.number) || '';
+    var transcript = (msg.artifact && msg.artifact.transcript) || msg.transcript || '';
+    logCall_('end_of_call_report', callerNumber, {
+      call_id: call.id || '',
+      ended_reason: endedReason,
+      transcript_chars: String(transcript).length
+    }, { summary: summary, outcome: endedReason }, summary ? 'summary' : 'report');
+    return { success: true, logged: true };
+  }
+
+  if (msg.type === 'status-update') {
+    return { success: true, ignored: 'status-update' };
+  }
+
+  return { success: true, ignored: String(msg.type || 'unknown') };
+}
+
 function doPost(e) {
   try {
+    var body = parseBody_(e);
+    if (body && body.message && body.message.type) return jsonOut_(handleVapi_(body, e));
     return jsonOut_(handle_(e));
   } catch (err) {
     return jsonOut_({ success: false, error: 'fatal', message: 'Sorry, something went wrong.' });
@@ -128,6 +198,7 @@ function doPost(e) {
 function doGet(e) {
   var body = parseBody_(e);
   if (!body.action && e && e.parameter && e.parameter.action) body.action = e.parameter.action;
+  if (body && body.message && body.message.type) return jsonOut_(handleVapi_(body, e));
   return jsonOut_(handle_(e));
 }
 

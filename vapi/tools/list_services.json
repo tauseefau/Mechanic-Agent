@@ -1,0 +1,17 @@
+{
+  "type": "function",
+  "async": false,
+  "function": {
+    "name": "list_services",
+    "description": "List the services the workshop offers with their price ranges, durations and descriptions, plus the add-ons (products) that can be added to a booking. Always call this before describing a service or offering an add-on; the catalogue is owner-editable and changes.",
+    "parameters": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    }
+  },
+  "server": {
+    "url": "{{API_BASE}}?token={{API_TOKEN}}",
+    "timeoutSeconds": 20
+  }
+}

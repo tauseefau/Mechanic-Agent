@@ -1,0 +1,51 @@
+{
+  "type": "function",
+  "async": false,
+  "function": {
+    "name": "check_availability",
+    "description": "Find open appointment slots for a service on or after a date. Returns up to three slots with a speech-ready label each. Never offer a slot that this tool did not return.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "service_id or service name, eg SVC002."
+        },
+        "addon_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "item_id values to include, which extend the job length."
+        },
+        "preferred_date": {
+          "type": "string",
+          "description": "The date the caller wants, as yyyy-mm-dd. Use today's date if they have no preference."
+        },
+        "time_preference": {
+          "type": "string",
+          "enum": [
+            "morning",
+            "afternoon",
+            "any"
+          ],
+          "description": "The caller's preference, if they expressed one."
+        }
+      },
+      "required": [
+        "service_id",
+        "preferred_date"
+      ]
+    }
+  },
+  "server": {
+    "url": "{{API_BASE}}?token={{API_TOKEN}}",
+    "timeoutSeconds": 20
+  },
+  "messages": [
+    {
+      "type": "request-start",
+      "content": "Let me check the diary."
+    }
+  ]
+}
