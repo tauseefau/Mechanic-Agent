@@ -25,6 +25,20 @@ $EDITOR .env          # fill every value you already know; leave IDs blank for n
 
 ## 2. Create the spreadsheet (**MANUAL**, 5 min)
 
+Either path produces an identical sheet. Pick one.
+
+**2a. From a terminal (recommended, fully scripted)**
+
+```bash
+python3 scripts/build-sheet.py            # creates the spreadsheet and fills every tab
+```
+
+It prints the spreadsheet ID and writes `SHEET_ID=` into `.env`. It reuses the Hermes
+Google OAuth token (`~/.hermes/google_token.json`); pass `HERMES_GOOGLE_TOKEN=/path`
+to override. Re-run with `--sheet-id <ID>` to rebuild the tabs of an existing sheet.
+
+**2b. From the browser (Apps Script editor)**
+
 1. <https://sheets.new> -> name it `Workshop Voice Agent`.
 2. Extensions -> Apps Script. This binds a script project to the sheet.
 3. In the editor, replace `Code.gs` with the contents of `sheet/create_sheet.gs`.

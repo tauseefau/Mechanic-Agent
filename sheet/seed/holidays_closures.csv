@@ -1,0 +1,5 @@
+date,reason,full_day,open,close
+2026-12-25,Christmas Day,TRUE,,
+2026-12-26,Boxing Day,TRUE,,
+2027-01-01,New Year's Day,TRUE,,
+2026-12-24,Christmas Eve - early close,FALSE,08:00,12:00

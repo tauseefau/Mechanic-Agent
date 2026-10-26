@@ -1,0 +1,3 @@
+vehicle_id,customer_id,rego,make,model,year,odometer,last_service_date,notes
+VEH0001,CUS0001,ABC123,Toyota,Corolla,2018,84210,2025-11-02,SAMPLE ROW - delete before go-live
+VEH0002,CUS0002,XYZ789,Ford,Ranger,2021,39150,2026-01-20,SAMPLE ROW - delete before go-live

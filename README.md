@@ -35,11 +35,13 @@ never invents prices, hours or availability.
 | [docs/testing.md](docs/testing.md) | Test plan and latest results |
 | [docs/limitations-and-next-steps.md](docs/limitations-and-next-steps.md) | Known limits, roadmap |
 | [sheet/schema.md](sheet/schema.md) | Every tab, column, type, validation rule |
-| [sheet/create_sheet.gs](sheet/create_sheet.gs) | Builds the whole spreadsheet from scratch |
+| [sheet/create_sheet.gs](sheet/create_sheet.gs) | Builds the whole spreadsheet from scratch (browser / Apps Script) |
+| [scripts/build-sheet.py](scripts/build-sheet.py) | Same build from a terminal via the Sheets API |
 | [apps-script/DEPLOY.md](apps-script/DEPLOY.md) | Deploying the web app with clasp |
 | [vapi/system-prompt.md](vapi/system-prompt.md) | The assistant system prompt |
 | [vapi/assistant.json](vapi/assistant.json) | Sanitised exported assistant config |
 | [elevenlabs/voice-settings.json](elevenlabs/voice-settings.json) | Voice choice and tuning |
+| [sheet/seed/](sheet/seed) | Seed rows per tab (no real customer data) |
 | [CHANGELOG.md](CHANGELOG.md) | Phase-by-phase history |
 
 ## Quick start (summary)

@@ -1,0 +1,7 @@
+item_id,item_name,category,price,extra_duration_minutes,applies_to_services,active,notes
+ADD001,Battery replacement,Parts,220,30,,TRUE,
+ADD002,Wiper blades,Parts,45,10,,TRUE,
+ADD003,Tyre rotation,Tyres,40,30,,TRUE,
+ADD004,Brake pad replacement,Parts,280,90,Minor Service;Major Service,TRUE,
+ADD005,Air filter,Parts,55,15,Minor Service;Major Service,TRUE,
+ADD006,Cabin filter,Parts,65,20,Minor Service;Major Service,TRUE,

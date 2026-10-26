@@ -1,6 +1,21 @@
 # Test plan and results
 
-Status: **not yet run** — populated in Phase 6.
+Status: **Phase 1 verified; Phases 3-6 tests not yet run.**
+
+Sheet build verification (Phase 1, run against the live spreadsheet):
+
+| Check | Result |
+|---|---|
+| 10 tabs present in order | pass |
+| Header row frozen on every tab | pass (frozenRowCount=1) |
+| Grid width matches schema (3/6/5/10/8/7/9/14/7/1) | pass |
+| Money columns formatted `$#,##0.00` | pass (`$49.00`, `$180.00` read back) |
+| Date/datetime columns formatted | pass |
+| Checkbox validation on bool columns | pass (BOOLEAN rule on 5 columns) |
+| Dropdown validation on enum columns | pass (status/source/category/day) |
+| E.164 phone keeps leading `+` | pass (`+61400000001`) |
+| Seed services/pricing present | pass (3 services, 6 add-ons) |
+| Sample rows clearly marked | pass ("SAMPLE ROW - delete before go-live") |
 
 ## Test plan
 

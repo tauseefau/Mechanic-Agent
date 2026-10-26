@@ -57,6 +57,17 @@ Caller ID arrives as `+61412345678`. Normalisation strips spaces/dashes and assu
 Phone calls need sub-second first audio. A Flash/Turbo model plus stability ~0.45 and
 speed ~1.0 is the chosen starting point; recorded in `elevenlabs/voice-settings.json`.
 
+## D-013 `currency_symbol` and `phone_country_code` added to Config
+Prices are spoken aloud ("between one hundred and eighty and two hundred and sixty
+dollars"), so the symbol/word is config, not code. Normalising a local `04xx xxx xxx`
+caller to E.164 needs a country code; default `61` (AU) keeps the helper pure.
+
+## D-012a Two interchangeable sheet builders
+`sheet/create_sheet.gs` (Apps Script editor) and `scripts/build-sheet.py` (Sheets API)
+both implement `sheet/schema.md` off the same seed CSVs. The Python path is used for
+CI-ish rebuilds without a browser; the `.gs` path is what the setup guide hands a
+non-technical operator. They are kept in lockstep by hand — schema.md is the arbiter.
+
 ## D-001 Everything workshop-specific lives in `Config` + catalogue tabs
 No business value appears in JS or in the prompt. The prompt contains only behaviour
 and `{{PLACEHOLDER}}`s resolved at build time. A new workshop is a config change.

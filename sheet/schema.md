@@ -21,7 +21,8 @@ Keys: `workshop_name`, `phone`, `address`, `timezone`, `currency`,
 `slot_granularity_minutes` (30), `booking_lead_time_hours` (4), `max_days_ahead` (60),
 `bays_available` (2), `buffer_minutes_between_jobs` (15), `calendar_id`,
 `greeting_name_for_agent`, `transfer_phone_number`, `after_hours_message`,
-`gst_percent` (10), `prices_include_gst` (TRUE), `cancellation_policy_text`.
+`gst_percent` (10), `prices_include_gst` (TRUE), `currency_symbol` ($),
+`phone_country_code` (61), `cancellation_policy_text`.
 
 ## 2. Working_Hours
 | Column | Type | Validation |

@@ -1,0 +1,3 @@
+customer_id,full_name,phone,email,first_seen,last_contact,notes
+CUS0001,Sample Customer,+61400000001,sample.customer@example.com,2026-01-05T09:12:00,2026-01-05T09:12:00,SAMPLE ROW - no real person; delete before go-live
+CUS0002,Second Sample,+61400000002,,2026-02-11T14:40:00,2026-02-11T14:40:00,SAMPLE ROW - no real person; delete before go-live

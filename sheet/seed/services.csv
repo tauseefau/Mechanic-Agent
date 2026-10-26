@@ -1,0 +1,4 @@
+service_id,service_name,category,description,price_from,price_to,duration_minutes,requires_full_day,active,notes
+SVC001,General Checkup,Servicing,"A quick safety and fluid check while you wait.",49,79,30,FALSE,TRUE,PLACEHOLDER pricing - owner to edit
+SVC002,Minor Service,Servicing,"Oil and filter change, fluids topped up and a basic safety inspection.",180,260,90,FALSE,TRUE,PLACEHOLDER pricing - owner to edit
+SVC003,Major Service,Servicing,"Full service to the manufacturer schedule including filters, all fluids and a detailed inspection.",480,750,240,FALSE,TRUE,PLACEHOLDER pricing - owner to edit; car stays with us for the day

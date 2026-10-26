@@ -1,0 +1,20 @@
+key,value,notes
+workshop_name,Riverbend Auto Service,PLACEHOLDER - name the agent says when answering
+phone,+61390000000,PLACEHOLDER - workshop landline quoted to callers
+address,"12 Example Rd, Melbourne VIC 3000",PLACEHOLDER - quoted for directions
+timezone,Australia/Melbourne,IANA timezone used for all date maths
+currency,AUD,ISO 4217 currency code
+slot_granularity_minutes,30,Slot grid in minutes (30 = 8:00 8:30 9:00 ...)
+booking_lead_time_hours,4,Minimum notice in hours before a slot can be booked
+max_days_ahead,60,How far into the future the agent will book
+bays_available,2,How many cars can be worked on at once (overlapping bookings allowed)
+buffer_minutes_between_jobs,15,Cleanup time counted as busy after each job
+calendar_id,,Paste the Workshop Bookings calendar ID here
+greeting_name_for_agent,Ava,Name the agent uses for itself
+transfer_phone_number,+61400000000,PLACEHOLDER - emergencies and give-me-a-human transfers
+after_hours_message,"Thanks for calling after hours. We are open Monday to Friday eight till five, and Saturday mornings. I can still book you in now.",Said when the caller rings outside opening hours
+gst_percent,10,GST rate applied to quotes when prices do not include GST
+prices_include_gst,TRUE,TRUE = prices in Services/Products already include GST
+currency_symbol,$,Symbol used when the agent speaks a price
+phone_country_code,61,Country code used to normalise local numbers to E.164
+cancellation_policy_text,"You can cancel or move a booking any time up to twenty four hours before, at no charge. Inside twenty four hours we may charge a small fee.",Read out when a caller asks about cancelling

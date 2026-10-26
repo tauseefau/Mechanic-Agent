@@ -1,0 +1,8 @@
+day_of_week,open,close,is_closed,lunch_start,lunch_end
+Monday,08:00,17:00,FALSE,12:00,12:30
+Tuesday,08:00,17:00,FALSE,12:00,12:30
+Wednesday,08:00,17:00,FALSE,12:00,12:30
+Thursday,08:00,17:00,FALSE,12:00,12:30
+Friday,08:00,17:00,FALSE,12:00,12:30
+Saturday,08:00,12:00,FALSE,,
+Sunday,09:00,17:00,TRUE,,
