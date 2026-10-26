@@ -83,8 +83,25 @@ All phases of this project are recorded here. Format: date, phase, what landed.
 ### Verified
 - `node tests/api-tests.js` → 39/39 pass.
 
+## [0.5.0] - 2026-10-26 — Phase 4: ElevenLabs voice
+
+### Added
+- `elevenlabs/voice-settings.json` — chosen voice (Charlie, Australian male,
+  `IKne3meq5aSn9XLyUdCD`), model `eleven_flash_v2_5`, tuning with per-setting rationale,
+  five-voice shortlist with measured render latency, Vapi mapping block, and the
+  documented swap path to Alice/Ava.
+- `elevenlabs/samples/*.mp3` — five voices reading the same 19-second script
+  (greeting, minor-service quote, three slot options) for a like-for-like listen.
+
+### Changed
+- `Config.greeting_name_for_agent` = `Charlie` (was `Ava`) so the agent's name matches
+  the voice; mirrored in `sheet/seed/config.csv` and `sheet/create_sheet.gs`.
+
+### Verified
+- All five renders HTTP 200; Charlie fastest at 1,055 ms for 19.5 s of audio.
+
 ## [Unreleased]
-- Phase 4 ElevenLabs voice
+- Phase 5 Vapi assistant
 - Phase 5 Vapi assistant
 - Phase 6 Testing
 - Phase 7 Replicability audit

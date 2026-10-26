@@ -10,7 +10,7 @@ max_days_ahead,60,How far into the future the agent will book
 bays_available,2,How many cars can be worked on at once (overlapping bookings allowed)
 buffer_minutes_between_jobs,15,Cleanup time counted as busy after each job
 calendar_id,,Paste the Workshop Bookings calendar ID here
-greeting_name_for_agent,Ava,Name the agent uses for itself
+greeting_name_for_agent,Charlie,Name the agent uses for itself
 transfer_phone_number,+61400000000,PLACEHOLDER - emergencies and give-me-a-human transfers
 after_hours_message,"Thanks for calling after hours. We are open Monday to Friday eight till five, and Saturday mornings. I can still book you in now.",Said when the caller rings outside opening hours
 gst_percent,10,GST rate applied to quotes when prices do not include GST

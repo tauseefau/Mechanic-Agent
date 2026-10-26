@@ -28,6 +28,22 @@ Calendar verification (Phase 2, run against the live calendar):
 | `.env` `CALENDAR_ID` set | pass |
 | `calendar/calendar-config.json` matches live state | pass |
 
+## Phase 4 — ElevenLabs voice
+
+| Check | Result |
+|---|---|
+| ElevenLabs key valid (Bitwarden Secrets Manager) | pass, tier `starter`, 1,125 / 49,947 characters used before sampling |
+| Voice list reachable | pass, 21 premade voices |
+| Australian-accented voices available | 1 (Charlie, male, conversational) |
+| Five shortlisted voices rendered from one identical script | pass, 200 each |
+| Render latency (19-21 s script, `optimize_streaming_latency=3`) | Charlie 1,055 ms · Bella 1,270 ms · Alice 1,306 ms · Eric 1,391 ms · Lily 1,423 ms |
+| Chosen voice written to `elevenlabs/voice-settings.json` | pass |
+| Config `greeting_name_for_agent` matches the voice | pass (`Charlie`, `Config!B13` and `sheet/seed/config.csv`) |
+
+Samples are committed under `elevenlabs/samples/` so the owner can compare before
+go-live. The shared-voice **library** endpoint refused this key (401 on
+`/v1/shared-voices`) - only premade voices are selectable without a console click.
+
 ## Phase 3 — Apps Script API
 
 Run: `node tests/api-tests.js` — **39/39 passed** against the Node harness

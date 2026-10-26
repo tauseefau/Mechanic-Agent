@@ -58,6 +58,19 @@ Caller ID arrives as `+61412345678`. Normalisation strips spaces/dashes and assu
 Phone calls need sub-second first audio. A Flash/Turbo model plus stability ~0.45 and
 speed ~1.0 is the chosen starting point; recorded in `elevenlabs/voice-settings.json`.
 
+## D-018 Australian male voice (Charlie) over a clearer British female one
+The account has exactly one Australian-accented voice and it is male. A local accent is
+worth more on an inbound workshop call than perfect diction in a foreign one - callers
+who hear an American or British accent on a "local" number hang up or ask for the owner.
+Cost: the persona name changes from "Ava" to "Charlie" so voice and name agree; Config
+carries the name, so this is an owner-editable string, not code. Alice (British, female)
+is documented as the runner-up with the exact two settings to change for a swap.
+
+## D-019 `eleven_flash_v2_5`, not `eleven_turbo_v2_5`
+Flash is the lowest-latency ElevenLabs model and the voice quality difference on a
+8 kHz phone line is inaudible. The `ELEVENLABS_MODEL` env var in the vault says
+`eleven_turbo_v2_5`; the assistant config overrides it explicitly.
+
 ## D-017 All timestamps carry a UTC offset
 Tool responses use `2026-11-23T14:00:00+11:00`, not a naked local time. Vapi forwards
 tool JSON straight into the model's context; an offset-less string gets read as UTC by

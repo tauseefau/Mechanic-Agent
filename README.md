@@ -43,7 +43,8 @@ never invents prices, hours or availability.
 | [tests/harness/gas.js](tests/harness/gas.js) | Apps Script shim so tests run under Node |
 | [vapi/system-prompt.md](vapi/system-prompt.md) | The assistant system prompt |
 | [vapi/assistant.json](vapi/assistant.json) | Sanitised exported assistant config |
-| [elevenlabs/voice-settings.json](elevenlabs/voice-settings.json) | Voice choice and tuning |
+| [elevenlabs/voice-settings.json](elevenlabs/voice-settings.json) | Voice choice, tuning, shortlist |
+| [elevenlabs/samples/](elevenlabs/samples) | Five voices reading the same script |
 | [sheet/seed/](sheet/seed) | Seed rows per tab (no real customer data) |
 | [CHANGELOG.md](CHANGELOG.md) | Phase-by-phase history |
 

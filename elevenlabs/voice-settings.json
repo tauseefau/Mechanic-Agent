@@ -1,7 +1,16 @@
 {
-  "_status": "PLACEHOLDER — chosen voice, tuning and shortlist written in Phase 4",
-  "voice_id": "",
-  "model_id": "eleven_flash_v2_5",
+  "_comment": "Chosen voice for the workshop receptionist. To swap: change voice_id here, in vapi/assistant.json (voice.voiceId) and keep Config.greeting_name_for_agent consistent with the voice.",
+  "chosen": {
+    "voice_id": "IKne3meq5aSn9XLyUdCD",
+    "name": "Charlie - Deep, Confident, Energetic",
+    "accent": "australian",
+    "gender": "male",
+    "use_case": "conversational",
+    "category": "premade",
+    "model_id": "eleven_flash_v2_5",
+    "why": "The only Australian-accented voice on the account, and the accent callers of a suburban Melbourne workshop expect. Its use-case is conversational rather than narration, so it holds up across interruptions and very short turns. It was also the fastest full render of the shortlist (1.05 s for a 19.5 s script) - Vapi streams the audio, so slow first-audio is heard as dead air.",
+    "sample": "elevenlabs/samples/charlie-au-male.mp3"
+  },
   "settings": {
     "stability": 0.45,
     "similarity_boost": 0.75,
@@ -9,5 +18,86 @@
     "use_speaker_boost": true,
     "speed": 1.0
   },
-  "shortlist": []
+  "settings_rationale": {
+    "stability": "0.45 is just below the 0.5 default: a little more life, still steady over a multi-minute call. Above ~0.6 a repeat-price receptionist sounds robotic; below ~0.3 it drifts on numbers.",
+    "similarity_boost": "0.75 keeps the voice identity intact on telephony-bandwidth audio without cloning artefacts.",
+    "style": "0.0 - style exaggeration costs latency and sounds theatrical; wrong for quotes and times.",
+    "use_speaker_boost": "true - clearer on a phone speaker at the workshop end.",
+    "speed": "1.0. Do not speed up: prices, times and regos are the highest-risk tokens to mishear."
+  },
+  "model_rationale": "eleven_flash_v2_5 is the low-latency model (sub-second first audio when streamed). eleven_turbo_v2_5 is the fallback if flash is unavailable on the plan. eleven_multilingual_v2 is deliberately NOT used: several times the latency with no benefit for English.",
+  "shortlist": [
+    {
+      "rank": 1,
+      "voice_id": "IKne3meq5aSn9XLyUdCD",
+      "name": "Charlie",
+      "accent": "australian",
+      "gender": "male",
+      "render_ms": 1055,
+      "audio_seconds": 19.5,
+      "verdict": "CHOSEN - local accent, conversational use-case, fastest render"
+    },
+    {
+      "rank": 2,
+      "voice_id": "Xb7hH8MSUJpSbSDYk0k2",
+      "name": "Alice",
+      "accent": "british",
+      "gender": "female",
+      "render_ms": 1306,
+      "audio_seconds": 21.5,
+      "verdict": "Runner-up. Clearest articulation of the five, but a British accent reads as offshore call centre to Australian callers. Pick this if a female voice matters more than the local accent; then set Config.greeting_name_for_agent to Ava and speed to 1.02."
+    },
+    {
+      "rank": 3,
+      "voice_id": "hpp4J3VqNfWAUOO0d1Us",
+      "name": "Bella",
+      "accent": "american",
+      "gender": "female",
+      "render_ms": 1270,
+      "audio_seconds": 19.1,
+      "verdict": "Warm and professional, US accent"
+    },
+    {
+      "rank": 4,
+      "voice_id": "pFZP5JQG7iQjIQuC4Bku",
+      "name": "Lily",
+      "accent": "british",
+      "gender": "female",
+      "render_ms": 1423,
+      "audio_seconds": 20.1,
+      "verdict": "Too acted and velvety for a workshop"
+    },
+    {
+      "rank": 5,
+      "voice_id": "cjVigY5qzO86Huf0OWal",
+      "name": "Eric",
+      "accent": "american",
+      "gender": "male",
+      "render_ms": 1391,
+      "audio_seconds": 19.2,
+      "verdict": "Smooth and trustworthy, US accent"
+    }
+  ],
+  "samples": {
+    "note": "All five rendered from the same 19-second script (greeting + minor-service quote + three slots) so they are directly comparable.",
+    "script_characters": 385,
+    "dir": "elevenlabs/samples/"
+  },
+  "account": {
+    "tier": "starter",
+    "character_limit": 49947,
+    "characters_used_before_sampling": 1125,
+    "note": "Sampling added ~1.9k characters. At roughly 700 characters per completed call the current plan is a few dozen calls - fine for testing, not for production. Move to a larger ElevenLabs plan, or set Vapi's voice provider to 'vapi' to use Vapi-bundled voices with no ElevenLabs quota."
+  },
+  "vapi_mapping": {
+    "provider": "11labs",
+    "voiceId": "IKne3meq5aSn9XLyUdCD",
+    "model": "eleven_flash_v2_5",
+    "stability": 0.45,
+    "similarityBoost": 0.75,
+    "style": 0.0,
+    "useSpeakerBoost": true,
+    "optimizeStreamingLatency": 3,
+    "note": "Vapi streams from ElevenLabs and needs ELEVENLABS_API_KEY in Vapi's provider credentials. The key currently in Bitwarden is on the starter tier and is valid."
+  }
 }
