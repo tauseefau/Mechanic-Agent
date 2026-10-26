@@ -21,9 +21,15 @@ const { createContext, call } = require('./harness/gas');
 const args = process.argv.slice(2);
 const LIVE = args.includes('--live');
 const paceIdx = args.indexOf('--pace');
-const PACE_MS = paceIdx > -1 ? Number(args[paceIdx + 1]) : 0;
+// live runs share Google's 300 reads/minute quota, so pace them by default
+const PACE_MS = paceIdx > -1 ? Number(args[paceIdx + 1]) : (LIVE ? 2000 : 0);
 const filterIdx = args.indexOf('--filter');
 const FILTER = filterIdx > -1 ? args[filterIdx + 1] : null;
+// --slice 1:20 runs only tests 1-20. Google's Sheets quota is 60 reads/minute PER USER,
+// so a full live run has to be split into batches with a pause between them.
+const sliceIdx = args.indexOf('--slice');
+const SLICE = sliceIdx > -1 ? String(args[sliceIdx + 1]).split(':').map(Number) : null;
+let testIndex = 0;
 const URL = process.env.APPS_SCRIPT_WEBAPP_URL || '';
 const TOKEN = process.env.APPS_SCRIPT_SHARED_TOKEN || '';
 
@@ -36,6 +42,8 @@ function record(name, ok, detail) {
 }
 
 async function test(name, fn) {
+  testIndex += 1;
+  if (SLICE && (testIndex < SLICE[0] || testIndex > (SLICE[1] || SLICE[0]))) return;
   if (FILTER && !name.toLowerCase().includes(FILTER.toLowerCase())) return;
   if (PACE_MS) await new Promise((r) => setTimeout(r, PACE_MS));
   try {

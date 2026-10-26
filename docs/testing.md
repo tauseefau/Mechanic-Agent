@@ -43,11 +43,28 @@ Target: `https://diyyourdata.com/workshop-api/` (PHP bridge → Node service →
 | availability on a normal weekday | pass (3 slots, 08:00-09:30 first) |
 | booking written to sheet + calendar event created | pass |
 | latency: ping / list_services / check_availability | 0.07 s / 0.6 s / 1.2-1.6 s |
-| `node tests/api-tests.js --live --pace 1200` | 38-39/39 (see note) |
+| `node tests/api-tests.js --live --slice 1:20` | **20/20 pass** |
+| `node tests/api-tests.js --live --slice 21:45` | **19/19 pass** |
 
-Note: repeated full-suite runs can trip Google's **300 read requests/minute** quota,
-which surfaces as `429`. `server/http-sync.js` retries 429/5xx with backoff, and
-`--pace` spaces the tests out. Production traffic is far below the quota.
+**39/39 pass against the live endpoint**, run as two batches 70 s apart.
+
+Why batches: the Sheets API default quota is **60 read requests per minute per user**
+(not 300 — that is the per-project figure). A full 39-test sweep issues ~100 reads in
+under two minutes and inevitably returns `429` partway through, which shows up as
+whichever test happened to be running. `server/http-sync.js` retries 429/5xx with
+backoff (1.5 s, 4 s), and `tests/api-tests.js` now defaults to a 2 s pace plus a
+`--slice a:b` selector so a live run can be split. Production traffic is a handful of
+reads per call, far below 60/minute; if a workshop ever needs headroom, raise the quota
+on the Google Cloud project.
+
+Reproduce the green run:
+
+```bash
+node scripts/reset-data.js --apply
+node tests/api-tests.js --live --slice 1:20
+sleep 70
+node tests/api-tests.js --live --slice 21:45
+```
 
 Bugs the live deployment caught that the harness could not:
 1. Header-row cache hit returned a flat array (miss returned nested) → every single-row

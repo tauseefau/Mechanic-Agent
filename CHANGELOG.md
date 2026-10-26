@@ -128,8 +128,9 @@ same backend is now served from the web host instead of blocking Phases 5-6.
 - Token gate both ways over the public URL: valid → `pong`, missing → `unauthorised`.
 - Latency: `ping` 70 ms, `list_services` 0.6 s, `check_availability` 1.2-1.6 s,
   `create_booking` ~2 s (all dominated by Google API round trips).
-- `node tests/api-tests.js --live` → 38-39/39; the occasional failure is Google's
-  300 reads/minute quota under suite-level load, not a logic error.
+- `node tests/api-tests.js --live` → **39/39** when split with `--slice` (Google's Sheets
+  quota is 60 reads/minute/user; a single 39-test sweep exceeds it by design).
+- `--slice a:b` selector and a 2 s default pace for live runs.
 
 ### Fixed
 - Header-row cache returned a flat array on a hit and a nested array on a miss, which
