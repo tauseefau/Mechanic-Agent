@@ -1,0 +1,13 @@
+{
+  "_status": "PLACEHOLDER — chosen voice, tuning and shortlist written in Phase 4",
+  "voice_id": "",
+  "model_id": "eleven_flash_v2_5",
+  "settings": {
+    "stability": 0.45,
+    "similarity_boost": 0.75,
+    "style": 0.0,
+    "use_speaker_boost": true,
+    "speed": 1.0
+  },
+  "shortlist": []
+}

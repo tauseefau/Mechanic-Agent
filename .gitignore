@@ -1,0 +1,32 @@
+# Secrets and credentials — never commit
+.env
+.env.*
+!.env.example
+.clasprc.json
+client_secret*.json
+*.pem
+*.key
+service-account*.json
+
+# Apps Script local state
+apps-script/.clasp.json
+apps-script/node_modules/
+apps-script/.clasprc.json
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Data exports that may contain personal data
+exports/
+*.csv.gz
+!sheet/seed/*.csv
+backup-*.json
+transcripts/*.txt
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

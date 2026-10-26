@@ -1,0 +1,10 @@
+{
+  "_status": "PLACEHOLDER — full sanitised export written in Phase 5",
+  "name": "{{WORKSHOP_NAME}} Receptionist",
+  "firstMessage": "",
+  "model": {},
+  "voice": {},
+  "transcriber": {},
+  "tools": [],
+  "serverUrl": "{{APPS_SCRIPT_WEBAPP_URL}}"
+}
