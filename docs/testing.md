@@ -17,6 +17,17 @@ Sheet build verification (Phase 1, run against the live spreadsheet):
 | Seed services/pricing present | pass (3 services, 6 add-ons) |
 | Sample rows clearly marked | pass ("SAMPLE ROW - delete before go-live") |
 
+Calendar verification (Phase 2, run against the live calendar):
+
+| Check | Result |
+|---|---|
+| `Workshop Bookings` calendar exists | pass |
+| Timezone `Australia/Melbourne` | pass |
+| Write access (insert + delete event) | pass, 0 events left behind |
+| `Config.calendar_id` = calendar ID | pass (`Config!B12`) |
+| `.env` `CALENDAR_ID` set | pass |
+| `calendar/calendar-config.json` matches live state | pass |
+
 ## Test plan
 
 ### 1. Action coverage (`tests/api-tests.js`)

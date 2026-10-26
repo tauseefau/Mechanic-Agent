@@ -35,6 +35,71 @@
 - The assistant is instructed never to read out stored personal data for a number
   other than the caller-ID match.
 
+## Availability algorithm (authoritative spec)
+
+Every `check_availability` / `create_booking` call must apply these rules in this
+order. `create_booking` re-runs the whole test inside the lock; a slot that passes
+here can still lose the race, which is why the failure path returns alternatives.
+
+Inputs: `service_id`, `addon_ids[]`, `preferred_date`, `time_preference`
+(`morning` | `afternoon` | `any` | a spoken time).
+
+1. **Duration.** `duration = service.duration_minutes + sum(addon.extra_duration_minutes)`
+   for the add-ons that resolve to an active row. Unknown add-on ids are ignored and
+   reported in `notes`.
+2. **Full-day services.** If `service.requires_full_day = TRUE`, the booking occupies
+   the entire open→close window for that weekday, whatever `duration_minutes` says.
+3. **Candidate grid.** For the preferred date, generate start times from `open` to
+   `close - duration` in steps of `Config.slot_granularity_minutes` (default 30, from
+   `open`, so 08:00, 08:30, 09:00 …). For a full-day service there is exactly one
+   candidate: `open`.
+4. **Date window.** Reject the date if `start < now + booking_lead_time_hours` or
+   `start > now + max_days_ahead` days.
+5. **Weekday hours.** Reject if the weekday row is missing, `is_closed = TRUE`,
+   `open`/`close` are blank, or the candidate is outside `open`→`close`.
+6. **Lunch.** Reject a candidate whose interval `[start, end)` intersects
+   `[lunch_start, lunch_end)` when both lunch values are set.
+7. **Holidays and closures.** Reject the date entirely when a `Holidays_Closures` row
+   has `full_day = TRUE`. When `full_day = FALSE`, the day's usable window becomes
+   that row's `open`→`close` (an early close), and a candidate outside it is rejected.
+   Rejections carry the row's `reason` so the agent can say why.
+8. **Capacity.** Count current occupancy of the interval
+   `[start, end + buffer_minutes_between_jobs)`. A candidate is free when
+   `overlapping_count < bays_available`. A candidate conflicts with an existing job
+   `[e_start, e_end)` when
+   `start < e_end + buffer AND e_start < end` — i.e. the buffer is charged after each
+   existing job, never before the candidate.
+9. **Occupancy sources.** Both, deduplicated by event id:
+   - `Bookings` rows with `status = Confirmed` (cancelled/completed/no-show do not block)
+   - live events in the `Workshop Bookings` calendar, read with `events.list` over the
+     candidate day (± 1 day, to catch overnight events and timezone edges). This means
+     an event the mechanic adds by hand still blocks the slot.
+10. **Ranking.** Return up to 3 slots ordered by `time_preference` (morning = before
+    12:00, afternoon = 12:00+, any = chronological), then by earliest start. If the
+    preferred day yields nothing, widen day by day up to `max_days_ahead` and say the
+    date had no space.
+
+`create_booking` adds:
+
+11. `LockService.getScriptLock()` (30 s) around steps 1-10 plus all writes.
+12. Booking row first (status `Confirmed`), then the Calendar event, then write
+    `calendar_event_id` back to the row. If the Calendar call fails the booking still
+    stands and `notes` gets `calendar_sync_failed`, so a Google outage cannot lose a
+    booking the caller was just told about.
+
+## Calendar conventions
+
+Calendar: **Workshop Bookings**, timezone `Australia/Melbourne`, recorded state in
+[../calendar/calendar-config.json](../calendar/calendar-config.json).
+
+- Title: `[Service] - [Customer] - [Rego]` (e.g. `Minor Service - Sam Taylor - ABC123`).
+- Description: phone, vehicle, add-ons, estimated price range, `Booking ID: BK00001`,
+  and `Booked by: AI receptionist`.
+- Start/end come from the booking's `start_datetime` / `end_datetime`; a per-event
+  60-minute popup reminder is set (calendar default reminders disabled so hand-made
+  events are not double-notified).
+- `transparency: opaque` so the slot looks busy to anyone reading the calendar.
+
 ## Concurrency
 
 All writes go through `LockService.getScriptLock()` with a 30 s timeout. Inside the

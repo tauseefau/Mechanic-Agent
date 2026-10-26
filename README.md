@@ -37,6 +37,7 @@ never invents prices, hours or availability.
 | [sheet/schema.md](sheet/schema.md) | Every tab, column, type, validation rule |
 | [sheet/create_sheet.gs](sheet/create_sheet.gs) | Builds the whole spreadsheet from scratch (browser / Apps Script) |
 | [scripts/build-sheet.py](scripts/build-sheet.py) | Same build from a terminal via the Sheets API |
+| [calendar/calendar-config.json](calendar/calendar-config.json) | Recorded calendar state + event template |
 | [apps-script/DEPLOY.md](apps-script/DEPLOY.md) | Deploying the web app with clasp |
 | [vapi/system-prompt.md](vapi/system-prompt.md) | The assistant system prompt |
 | [vapi/assistant.json](vapi/assistant.json) | Sanitised exported assistant config |

@@ -57,6 +57,19 @@ Caller ID arrives as `+61412345678`. Normalisation strips spaces/dashes and assu
 Phone calls need sub-second first audio. A Flash/Turbo model plus stability ~0.45 and
 speed ~1.0 is the chosen starting point; recorded in `elevenlabs/voice-settings.json`.
 
+## D-015 Full-day services occupy one bay, not the whole workshop
+`requires_full_day = TRUE` sets the booking's duration to the day's open→close window.
+Capacity is still bounded by `bays_available`, so with two bays the workshop can still
+take a short job in the other bay. Brief said "block the whole working day"; reading
+that as "this job blocks the day *for that bay*" keeps the second bay productive, and
+an owner who wants the whole shop closed can already block the date in
+`Holidays_Closures`.
+
+## D-014 Buffer is charged after the existing job, not symmetrically
+Conflict test is `start < e_end + buffer AND e_start < end`. Charging the buffer on
+both sides would waste a buffer-length hole between back-to-back jobs and shrink real
+capacity from 4 jobs to 3 in a day. Cleanup happens after a car leaves.
+
 ## D-013 `currency_symbol` and `phone_country_code` added to Config
 Prices are spoken aloud ("between one hundred and eighty and two hundred and sixty
 dollars"), so the symbol/word is config, not code. Normalising a local `04xx xxx xxx`

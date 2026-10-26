@@ -39,8 +39,24 @@ All phases of this project are recorded here. Format: date, phase, what landed.
   otherwise eat it as a formula).
 - Tab grid width trimmed to the schema instead of the default 26 columns.
 
+## [0.3.0] - 2026-10-26 — Phase 2: Google Calendar
+
+### Added
+- Dedicated calendar **Workshop Bookings** (Australia/Melbourne), ID
+  `61bc2e3d...@group.calendar.google.com`, written to `Config.calendar_id` and `.env`.
+- `scripts/create-calendar.py` — idempotent create/adopt + write-access proof + Config
+  and `.env` patching, so a new workshop gets the same calendar from one command.
+- `calendar/calendar-config.json` — recorded calendar state and the event title /
+  description template.
+- `docs/architecture.md`: authoritative availability algorithm (duration, full-day,
+  slot grid, lead time, weekday hours, lunch, holidays, capacity vs bays, buffer
+  rule, dual occupancy sources, ranking) and calendar conventions.
+
+### Verified
+- Calendar exists with the right name and timezone; write access proven by creating
+  and deleting a test event (0 events remain); Config!B12 and `.env` both carry the ID.
+
 ## [Unreleased]
-- Phase 2 Google Calendar
 - Phase 3 Apps Script API
 - Phase 4 ElevenLabs voice
 - Phase 5 Vapi assistant

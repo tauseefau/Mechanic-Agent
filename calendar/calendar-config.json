@@ -1,0 +1,31 @@
+{
+  "_comment": "Recorded state of the dedicated booking calendar. The live ID is in Sheet Config.calendar_id and .env CALENDAR_ID.",
+  "summary": "Workshop Bookings",
+  "time_zone": "Australia/Melbourne",
+  "calendar_id": "61bc2e3d35d32077b9484783de6c520141a9be6cf40ae0e8c3107366dc7406a4@group.calendar.google.com",
+  "event_template": {
+    "summary": "[Service] - [Customer] - [Rego]",
+    "description": "Phone: [phone]\nVehicle: [year] [make] [model] ([rego])\nAdd-ons: [addon names or 'none']\nEstimated price: $[low] - $[high] (GST inclusive)\nBooking ID: [booking_id]\nBooked by: AI receptionist",
+    "start": "booking start_datetime in workshop timezone",
+    "end": "booking end_datetime in workshop timezone",
+    "reminders": {
+      "useDefault": false,
+      "overrides": [
+        {
+          "method": "popup",
+          "minutes": 60
+        }
+      ]
+    },
+    "transparency": "opaque"
+  },
+  "settings": {
+    "timezone": "Australia/Melbourne",
+    "week_start": "monday",
+    "default_reminders": "disabled (events carry their own reminder)"
+  },
+  "access": {
+    "owner": "the deploying Google account",
+    "sharing": "share with the mechanic's personal account as 'Make changes to events' if they use a different login"
+  }
+}

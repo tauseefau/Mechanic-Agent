@@ -49,7 +49,18 @@ to override. Re-run with `--sheet-id <ID>` to rebuild the tabs of an existing sh
 Verify: 10 tabs exist (Config, Working_Hours, Holidays_Closures, Services,
 Products_Addons, Customers, Vehicles, Bookings, Call_Log, README) with frozen headers.
 
-## 3. Create the calendar (**MANUAL**, 2 min)
+## 3. Create the calendar (**scripted**, 1 min)
+
+```bash
+python3 scripts/create-calendar.py
+```
+
+Creates (or adopts) the `Workshop Bookings` calendar, proves write access, writes
+`calendar/calendar-config.json`, and patches `Config.calendar_id` + `.env`.
+Then, if the mechanic uses a different Google login, share the calendar with them as
+*Make changes to events* (MANUAL).
+
+The manual equivalent, if you prefer the UI:
 
 1. Google Calendar -> *Create new calendar* -> name `Workshop Bookings`, timezone
    `Australia/Melbourne`.
