@@ -56,8 +56,34 @@ All phases of this project are recorded here. Format: date, phase, what landed.
 - Calendar exists with the right name and timezone; write access proven by creating
   and deleting a test event (0 events remain); Config!B12 and `.env` both carry the ID.
 
+## [0.4.0] - 2026-10-26 — Phase 3: Apps Script API
+
+### Added
+- `apps-script/src/` — seven modules: `util`, `config`, `availability`, `customers`,
+  `bookings`, `logging`, `api`. All nine actions: `get_workshop_info`, `list_services`,
+  `get_price_quote`, `lookup_customer`, `check_availability`, `create_booking`,
+  `reschedule_booking`, `cancel_booking`, `log_call_summary` (+ `ping`).
+- Every response carries a speech-friendly `message`; every call is written to
+  `Call_Log` with request/response JSON and an outcome.
+- `LockService` around every booking write, with slot re-validation inside the lock and
+  alternatives returned on a lost race.
+- `tests/harness/gas.js` — Apps Script shim (SpreadsheetApp, CalendarApp, LockService,
+  PropertiesService, ContentService, Utilities) so production code runs under Node.
+- `tests/api-tests.js` — 39 tests through the real `doPost`/`doGet` path, plus a
+  `--live` mode that runs the same suite against a deployment.
+- `apps-script/DEPLOY.md` — clasp and web-editor paths, script properties, the
+  token-in-body explanation, and a response-interpretation table.
+
+### Fixed
+- ISO timestamps now include the workshop UTC offset (D-017).
+- A start time before opening is rejected instead of being silently snapped to opening.
+- Shared token is read from the JSON body / query string, because Apps Script does not
+  expose request headers (D-016).
+
+### Verified
+- `node tests/api-tests.js` → 39/39 pass.
+
 ## [Unreleased]
-- Phase 3 Apps Script API
 - Phase 4 ElevenLabs voice
 - Phase 5 Vapi assistant
 - Phase 6 Testing

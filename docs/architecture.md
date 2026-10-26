@@ -28,9 +28,12 @@
 ## Trust boundaries
 
 - The web app is deployed "Execute as me / Anyone", so it is reachable by URL. The
-  shared token (`X-Auth-Token` header, or `token` body/query param) is the gate;
-  requests without it are rejected with `{success:false}` and logged as
-  `unauthorised`.
+  shared token is the gate; requests without it are rejected with `{success:false}`
+  and logged as `unauthorised`.
+- Apps Script does not expose request headers, so the token travels in the JSON
+  `body.token` (Vapi tool bodies carry it as a static field) or as a `token` query
+  parameter. `X-Auth-Token` is still read if the runtime ever exposes headers. See
+  [../apps-script/DEPLOY.md](../apps-script/DEPLOY.md).
 - The Sheet itself is never shared publicly.
 - The assistant is instructed never to read out stored personal data for a number
   other than the caller-ID match.

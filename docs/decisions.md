@@ -14,8 +14,9 @@ workshop with same-morning fill being realistic but not instant. All owner-edita
 
 ## D-010 Shared-secret auth via `X-Auth-Token`, not Google OAuth
 The web app is *Execute as me / Anyone*, so it is publicly reachable. A shared token
-in the header (or `token` body/query param for GET) is the gate. Simpler than OAuth
-for a server-to-server caller, and revocable by rotating one Script Property.
+is the gate. Simpler than OAuth for a server-to-server caller, and revocable by
+rotating one Script Property. **Transport corrected in D-016**: Apps Script cannot see
+request headers, so the token goes in the JSON body / query string.
 
 Reason a URL-only web app is acceptable: no personal data is returned without the
 token, and the token is high-entropy (32 bytes hex).
@@ -56,6 +57,19 @@ Caller ID arrives as `+61412345678`. Normalisation strips spaces/dashes and assu
 ## D-002 ElevenLabs Flash-class model for latency
 Phone calls need sub-second first audio. A Flash/Turbo model plus stability ~0.45 and
 speed ~1.0 is the chosen starting point; recorded in `elevenlabs/voice-settings.json`.
+
+## D-017 All timestamps carry a UTC offset
+Tool responses use `2026-11-23T14:00:00+11:00`, not a naked local time. Vapi forwards
+tool JSON straight into the model's context; an offset-less string gets read as UTC by
+half the ecosystem and shifts an appointment by 11 hours. `iso_()` appends the offset
+from `Utilities.formatDate(..., 'Z')`.
+
+## D-016 Shared token travels in the JSON body, not a header
+Apps Script's `doPost(e)` exposes only `e.postData.contents` and `e.parameter` — request
+headers are invisible, so an `X-Auth-Token` design would have failed closed on every
+call. The token is therefore read from `body.token`, then `?token=`, then a header if one
+ever appears. Vapi tool bodies carry it as a static field. Supersedes the header half of
+D-010.
 
 ## D-015 Full-day services occupy one bay, not the whole workshop
 `requires_full_day = TRUE` sets the booking's duration to the day's open→close window.

@@ -75,7 +75,8 @@ The manual equivalent, if you prefer the UI:
 In the same Apps Script project:
 
 1. Project Settings -> *Show appsscript.json* -> paste `apps-script/appsscript.json`.
-2. Create the source files: `apps-script/src/*.js` — one file per module (see
+2. Create the source files: one file per module from `apps-script/src/*.js` —
+   `util`, `config`, `availability`, `customers`, `bookings`, `logging`, `api` (see
    `apps-script/DEPLOY.md` for the file list and the `clasp` alternative).
 3. Project Settings -> *Script Properties* -> add `SHARED_TOKEN` = a long random
    string (`openssl rand -hex 32`). Copy the same value into `.env` as
@@ -83,6 +84,9 @@ In the same Apps Script project:
 4. Deploy -> *New deployment* -> type **Web app** ->
    *Execute as*: **Me**, *Who has access*: **Anyone** ->
    Deploy, authorise, copy the `/exec` URL into `.env` as `APPS_SCRIPT_WEBAPP_URL`.
+
+The token goes in the JSON body, not a header — Apps Script cannot read headers
+(see `apps-script/DEPLOY.md`).
 
 Verify with curl:
 

@@ -28,6 +28,36 @@ Calendar verification (Phase 2, run against the live calendar):
 | `.env` `CALENDAR_ID` set | pass |
 | `calendar/calendar-config.json` matches live state | pass |
 
+## Phase 3 — Apps Script API
+
+Run: `node tests/api-tests.js` — **39/39 passed** against the Node harness
+(`tests/harness/gas.js`), which executes the real `apps-script/src/*.js` through the
+real `doPost`/`doGet` path with sheet, calendar, lock, properties and content-service
+shims seeded from `sheet/seed/*.csv`.
+
+Covered: token gate (missing/wrong/valid, GET parity), `ping`, `get_workshop_info`
+(hours, closures, currency), `list_services`, `get_price_quote` (base, +add-on,
+3 add-ons, unknown add-on, unknown service), `lookup_customer` (known, local `04`
+normalisation, unknown, invalid), `check_availability` (3 slots in hours, no lunch
+slots, morning preference, closure named and skipped, closed Sunday skipped, Saturday
+short hours, 240-min block), `create_booking` (row + customer + vehicle + calendar
+event with the right title/description, bay capacity 2 with a third refusal and
+alternatives, past date, lunch, outside hours, holiday, invalid phone, missing
+fields), `reschedule_booking` (by id and by phone, event moved, sheet updated),
+`cancel_booking` (status + event deleted, double cancel, unknown reference),
+`log_call_summary`, and that every action lands in `Call_Log`.
+
+Bugs this run found and fixed:
+1. `USER_ENTERED` ate the `+` on phone numbers (found in Phase 1, regression-tested here).
+2. A requested time *before opening* was silently snapped to opening instead of being
+   refused — the caller would have been booked at a time they did not ask for.
+3. Timestamps were emitted without a UTC offset (see D-017).
+4. The harness had to learn Apps Script's quoted-literal date patterns (`'T'`).
+
+Not yet run against a live deployment: the web app must be deployed from the
+workshop's own Google account (see `apps-script/DEPLOY.md`). `node tests/api-tests.js
+--live` runs the same suite once `APPS_SCRIPT_WEBAPP_URL` exists.
+
 ## Test plan
 
 ### 1. Action coverage (`tests/api-tests.js`)
