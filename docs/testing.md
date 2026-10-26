@@ -28,6 +28,35 @@ Calendar verification (Phase 2, run against the live calendar):
 | `.env` `CALENDAR_ID` set | pass |
 | `calendar/calendar-config.json` matches live state | pass |
 
+## Phase 3b — live endpoint on diyourdata.com
+
+Target: `https://diyyourdata.com/workshop-api/` (PHP bridge → Node service →
+`apps-script/src` modules → Google REST).
+
+| Check | Result |
+|---|---|
+| `/health` reads the live sheet | pass (`Riverbend Auto Service`, `Australia/Melbourne`) |
+| valid token → `ping` | pass (`{"success":true,"pong":true}`) |
+| no token → rejected | pass (`unauthorised` / `no_token`) |
+| prices read as numbers | pass (`$49 to $79`, `$180 to $260`, `$480 to $750`) |
+| closures read as dates | pass (`2026-12-25 Christmas Day`) |
+| availability on a normal weekday | pass (3 slots, 08:00-09:30 first) |
+| booking written to sheet + calendar event created | pass |
+| latency: ping / list_services / check_availability | 0.07 s / 0.6 s / 1.2-1.6 s |
+| `node tests/api-tests.js --live --pace 1200` | 38-39/39 (see note) |
+
+Note: repeated full-suite runs can trip Google's **300 read requests/minute** quota,
+which surfaces as `429`. `server/http-sync.js` retries 429/5xx with backoff, and
+`--pace` spaces the tests out. Production traffic is far below the quota.
+
+Bugs the live deployment caught that the harness could not:
+1. Header-row cache hit returned a flat array (miss returned nested) → every single-row
+   tab read threw. Only reproducible in a long-lived process.
+2. Sheet dates arrive as serial numbers over REST → **holidays were silently ignored**.
+3. `getLastColumn()` on `Call_Log` cost a full-tab read per request (~2 s).
+4. `USER_ENTERED` formatting: the API returns `$49.00` unless
+   `valueRenderOption=UNFORMATTED_VALUE` is set.
+
 ## Phase 4 — ElevenLabs voice
 
 | Check | Result |

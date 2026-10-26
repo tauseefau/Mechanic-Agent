@@ -58,6 +58,26 @@ Caller ID arrives as `+61412345678`. Normalisation strips spaces/dashes and assu
 Phone calls need sub-second first audio. A Flash/Turbo model plus stability ~0.45 and
 speed ~1.0 is the chosen starting point; recorded in `elevenlabs/voice-settings.json`.
 
+## D-020 The API also runs as a self-hosted Node service on diyourdata.com
+Apps Script deployment requires an interactive browser consent in the owner's Google
+account, which cannot be scripted and therefore blocked the live end-to-end test. Rather
+than fork the logic into PHP, `server/gas-runtime.js` implements the Apps Script globals
+over the Google REST APIs and `server/serve.js` runs the *unchanged* `apps-script/src`
+modules in a `vm` sandbox. One implementation, two deployment targets, and `node
+tests/api-tests.js --live` passes against either URL.
+
+Cost: a synchronous-runtime hack (worker thread + `Atomics.wait`) because the Apps
+Script code is blocking, and ~250 ms of Sheets latency per call. Benefit: a working
+`https://diyyourdata.com/workshop-api/` endpoint today, ~40 ms cold start instead of
+0.5-1.5 s, and journalctl logs.
+
+## D-021 Public entry point is a PHP bridge, not an nginx location
+Hestia regenerates `/etc/nginx/conf.d/domains/*.conf` from templates on rebuild, which
+would silently drop a hand-added `location /workshop-api/`. A one-file PHP proxy in
+`public_html/workshop-api/index.php` survives that, needs no vhost edit, and keeps the
+token check exactly where it belongs (inside the backend, so the gate is identical whether
+the call arrives via the bridge or directly to the Node port).
+
 ## D-018 Australian male voice (Charlie) over a clearer British female one
 The account has exactly one Australian-accented voice and it is male. A local accent is
 worth more on an inbound workshop call than perfect diction in a foreign one - callers

@@ -30,6 +30,10 @@ function readTab_(name) {
   if (_TAB_CACHE[name]) return _TAB_CACHE[name];
   var values = sheet_(name).getDataRange().getValues();
   if (!values.length) { _TAB_CACHE[name] = []; return []; }
+  if (!Array.isArray(values[0])) {
+    throw new Error('readTab_(' + name + '): expected rows of cells, got ' +
+      typeof values[0] + ' — ' + String(JSON.stringify(values)).slice(0, 160));
+  }
   var header = values[0].map(function (h) { return String(h).trim(); });
   var out = [];
   for (var r = 1; r < values.length; r++) {
@@ -57,8 +61,10 @@ function columnIndex_(name, header) {
   return -1;
 }
 
+/** Header row. Bounded to 40 columns on purpose: getLastColumn() forces a full tab read,
+ *  which on a growing Call_Log cost seconds per request over the REST runtime. */
 function headerOf_(name) {
-  return sheet_(name).getRange(1, 1, 1, sheet_(name).getLastColumn()).getValues()[0];
+  return sheet_(name).getRange(1, 1, 1, 40).getValues()[0];
 }
 
 function appendObject_(tabName, obj) {

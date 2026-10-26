@@ -88,6 +88,21 @@ In the same Apps Script project:
 The token goes in the JSON body, not a header — Apps Script cannot read headers
 (see `apps-script/DEPLOY.md`).
 
+### 4b. Alternative: self-hosted runtime (no Google UI at all)
+
+If you would rather not do the browser deploy, the same modules run behind a normal
+HTTPS URL:
+
+```bash
+./deploy/deploy.sh          # rsync to /opt/workshop-api, systemd unit, PHP bridge
+curl 'https://<domain>/workshop-api/?health=1'
+```
+
+Then set `APPS_SCRIPT_WEBAPP_URL=https://<domain>/workshop-api/` and keep the same
+`APPS_SCRIPT_SHARED_TOKEN`. Nothing else changes — Vapi tool definitions still carry
+`{{APPS_SCRIPT_WEBAPP_URL}}`. See [../server/README.md](../server/README.md) for the
+trade-offs and `systemctl`/`journalctl` commands.
+
 Verify with curl:
 
 ```bash

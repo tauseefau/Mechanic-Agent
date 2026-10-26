@@ -100,8 +100,46 @@ All phases of this project are recorded here. Format: date, phase, what landed.
 ### Verified
 - All five renders HTTP 200; Charlie fastest at 1,055 ms for 19.5 s of audio.
 
+## [0.6.0] - 2026-10-26 — Phase 3b: live HTTPS endpoint on diyourdata.com
+
+Apps Script deployment needs a browser consent in the workshop's Google account, so the
+same backend is now served from the web host instead of blocking Phases 5-6.
+
+### Added
+- `server/gas-runtime.js` — `SpreadsheetApp` / `CalendarApp` / `LockService` /
+  `PropertiesService` / `ContentService` / `Utilities.formatDate` over the Google REST
+  APIs, with per-tab read caching (Config/catalogue 10 s, Customers/Vehicles 5 s,
+  Bookings deliberately uncached), sheet-serial → `Date` coercion, and header-row caching.
+- `server/http-sync.js` + `server/http-worker.js` — synchronous HTTPS with a worker thread
+  and a pooled connection (Apps Script code is blocking; curl-per-call cost ~300 ms and
+  a TLS handshake each time).
+- `server/serve.js` — HTTP front for the unchanged modules; `/health` probe; per-request
+  `vm` context; request logging.
+- `deploy/deploy.sh`, `deploy/workshop-api.service`, `deploy/workshop-api/index.php` —
+  rsync to `/opt/workshop-api`, `/etc/workshop-api.env` (0600), systemd unit, PHP bridge.
+- `scripts/reset-data.js` — clears bookings/logs/test customers and deletes calendar
+  events, for repeatable test runs.
+- `tests/api-tests.js --pace <ms>` and `--live` pacing to stay inside Google's
+  per-minute Sheets quota.
+
+### Verified
+- `https://diyyourdata.com/workshop-api/?health=1` → `ok:true`, workshop + timezone read
+  live from the sheet.
+- Token gate both ways over the public URL: valid → `pong`, missing → `unauthorised`.
+- Latency: `ping` 70 ms, `list_services` 0.6 s, `check_availability` 1.2-1.6 s,
+  `create_booking` ~2 s (all dominated by Google API round trips).
+- `node tests/api-tests.js --live` → 38-39/39; the occasional failure is Google's
+  300 reads/minute quota under suite-level load, not a logic error.
+
+### Fixed
+- Header-row cache returned a flat array on a hit and a nested array on a miss, which
+  broke `readTab_` on any single-row tab (Bookings before its first booking).
+- Sheets returns date cells as serial numbers when read unformatted; without conversion
+  `2026-12-25` never matched serial `46381` and **every holiday was ignored**.
+- `getLastColumn()` forced a full-tab read on every logged request (~2 s per call on a
+  growing Call_Log); the header read is now bounded to 40 columns.
+
 ## [Unreleased]
-- Phase 5 Vapi assistant
 - Phase 5 Vapi assistant
 - Phase 6 Testing
 - Phase 7 Replicability audit

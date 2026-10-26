@@ -39,6 +39,8 @@ never invents prices, hours or availability.
 | [scripts/build-sheet.py](scripts/build-sheet.py) | Same build from a terminal via the Sheets API |
 | [calendar/calendar-config.json](calendar/calendar-config.json) | Recorded calendar state + event template |
 | [apps-script/DEPLOY.md](apps-script/DEPLOY.md) | Deploying the web app with clasp |
+| [server/README.md](server/README.md) | Running the same backend as a self-hosted service |
+| [deploy/deploy.sh](deploy/deploy.sh) | One-command deploy to `/workshop-api/` |
 | [tests/api-tests.js](tests/api-tests.js) | All-action test suite (harness + `--live`) |
 | [tests/harness/gas.js](tests/harness/gas.js) | Apps Script shim so tests run under Node |
 | [vapi/system-prompt.md](vapi/system-prompt.md) | The assistant system prompt |

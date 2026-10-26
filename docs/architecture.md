@@ -110,6 +110,28 @@ lock the slot is re-validated from scratch, so two simultaneous calls for the sa
 slot cannot both succeed; the loser gets `success:false` plus the three nearest
 alternatives.
 
+## Two deployment targets, one backend
+
+The business logic in `apps-script/src/` is the only implementation. It runs in two
+places:
+
+| Target | How it runs | When to use |
+|---|---|---|
+| **Google Apps Script** | `clasp push` + web app deployment (needs a browser consent once) | the workshop owns its Google account and a 6-minute-per-execution backend is fine |
+| **Self-hosted runtime** | `deploy/deploy.sh` → `https://diyyourdata.com/workshop-api/` | you want a URL today, without an interactive Google deploy, or you want the latency and logging of a normal server |
+
+`server/gas-runtime.js` implements `SpreadsheetApp`, `CalendarApp`, `LockService`,
+`PropertiesService`, `ContentService` and `Utilities.formatDate` on top of the Google
+REST APIs; `server/serve.js` compiles the unchanged modules into a fresh `vm` context
+per request and calls the same `doPost`. Vapi points at whichever URL is live — the tool
+definitions are identical apart from `{{APPS_SCRIPT_WEBAPP_URL}}`.
+
+Differences worth knowing: Apps Script gives a fresh execution per request (the runtime
+gives a fresh `vm` context per request), Apps Script's `LockService` serialises across
+executions (the runtime's handlers are synchronous and single-process, so writes cannot
+interleave — the lock call is kept for API compatibility), and the runtime adds a
+10-second read cache on the Config/catalogue tabs while leaving Bookings uncached.
+
 ## Why Apps Script and not a Node service
 
 - Calendar + Sheets OAuth is already solved by the owner's Google identity.

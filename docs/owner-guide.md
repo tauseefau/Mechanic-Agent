@@ -88,7 +88,18 @@ name using this table.
 | `buffer_minutes_between_jobs` | Cleanup time counted as busy between jobs |
 | `cancellation_policy_text` | Read out when someone asks about cancelling |
 
-## 9. If something looks wrong
+## 9. Who to call when the system is down
+
+The agent talks to an HTTPS endpoint that reads this spreadsheet and writes to the
+calendar. If it stops answering, whoever maintains the repo checks:
+
+- self-hosted: `systemctl status workshop-api` and `journalctl -u workshop-api -n 50`
+- Apps Script: the web app deployment is still on the `/exec` URL and `SHARED_TOKEN`
+  is still set
+
+Nothing in this spreadsheet can break it except renaming a tab or a column header.
+
+## 10. If something looks wrong
 
 1. Check the **Call_Log** tab — every call and every tool call is there with the
    exact request and response.

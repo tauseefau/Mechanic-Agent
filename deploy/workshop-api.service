@@ -1,0 +1,25 @@
+[Unit]
+Description=Workshop Voice Agent API (Apps Script modules over Google REST)
+Documentation=https://github.com/tauseefau/Mechanic-Agent/blob/main/docs/architecture.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/workshop-api
+EnvironmentFile=/etc/workshop-api.env
+ExecStart=/usr/bin/node /opt/workshop-api/server/serve.js
+Restart=always
+RestartSec=2
+StandardOutput=append:/var/log/workshop-api.log
+StandardError=append:/var/log/workshop-api.log
+# hardening: read-only except the token file we refresh
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/root/.hermes
+
+[Install]
+WantedBy=multi-user.target

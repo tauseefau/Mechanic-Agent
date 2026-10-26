@@ -27,15 +27,20 @@ function logCall_(tool, caller, request, response, outcome) {
   }
 }
 
+/**
+ * The router (api.js) writes one Call_Log row per request, including the summary text, so
+ * this handler does not log again - a second append was costing ~250 ms of tool latency
+ * for no extra information.
+ */
 function logCallSummary_(params) {
   var summary = String(params.summary || '').trim();
   if (!summary) {
     return { success: false, error: 'missing_summary', message: 'Nothing to log.' };
   }
-  logCall_('log_call_summary', params.caller_number || params.phone || '', {
+  return {
+    success: true,
     call_id: params.call_id || '',
-    summary: summary,
-    outcome: params.outcome || ''
-  }, { logged: true }, params.outcome || 'summary');
-  return { success: true, message: 'Logged.' };
+    logged_at: iso_(new Date()),
+    message: 'Logged.'
+  };
 }

@@ -20,6 +20,8 @@ const { createContext, call } = require('./harness/gas');
 
 const args = process.argv.slice(2);
 const LIVE = args.includes('--live');
+const paceIdx = args.indexOf('--pace');
+const PACE_MS = paceIdx > -1 ? Number(args[paceIdx + 1]) : 0;
 const filterIdx = args.indexOf('--filter');
 const FILTER = filterIdx > -1 ? args[filterIdx + 1] : null;
 const URL = process.env.APPS_SCRIPT_WEBAPP_URL || '';
@@ -35,6 +37,7 @@ function record(name, ok, detail) {
 
 async function test(name, fn) {
   if (FILTER && !name.toLowerCase().includes(FILTER.toLowerCase())) return;
+  if (PACE_MS) await new Promise((r) => setTimeout(r, PACE_MS));
   try {
     const detail = await fn();
     record(name, true, detail || '');
